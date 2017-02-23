@@ -33,20 +33,20 @@ def genetic_mutation(children_matrix, mutation_percentage):
     children_matrix = np.transpose(children_matrix)   # Transpose so each child has its own row
     for i in range(children_matrix.shape[0]):       # Mutate each child. Each i is a different child
         while True:     # Mutate each child until it doesn't break the mirror
-            # //Should keep track of the original child in case the mutated child doesn't fit the mirror?
+            # Should also keep track of the original child in case the mutated child doesn't fit the mirror
             index = children_matrix[i].size - 2     # determine which index is the last gene
             rand_nums = np.random.random_integers(-10000,10000,children_matrix[i].size)/10000    # create num_genes number of random numbers from -1 to 1
             rand_nums2 = np.random.random_integers(0,10000,children_matrix[i].size)/10000    # Generate random number between 0 and 1
             vector_of_rand_nums = np.empty(0,float,'C')
             for j in range(children_matrix[i].size):        # Mutate every gene
-                new_num = math.exp(-rand_nums[j]*rand_nums[j]/mut_squared)      # //idk what this does
-                if (rand_nums2[j] < new_num) and (j < index):    # //idk why this is the parameter
+                new_num = math.exp(-rand_nums[j]*rand_nums[j]/mut_squared)      # generate number in gaussian distribution where the standard deviation is the mutation percentage
+                if (rand_nums2[j] < new_num) and (j < index):    # if the generated number is less than a random number between 0 and 1, mutate the gene
                     new_gene = rand_nums[j]*100 + children_matrix[i][j]     # mutate the gene
                     if new_gene > -100 and new_gene < 100:     # new_gene is good if abs(new_gene) < 100
                         children_matrix[i][j] = abs(new_gene)   # pass on the new gene
                         vector_of_rand_nums = np.append(vector_of_rand_nums,rand_nums[j])      # remember this random number
                 # Note: if one of the if statement conditions isn't met, the original gene is kept
-            children_matrix[i][index] = np.mean(vector_of_rand_nums)     # //idk why they store this value right now
+            children_matrix[i][index] = np.mean(vector_of_rand_nums)     # this is the average amount of mutation for each child
             if x_tools(children_matrix[i]) == True:    # determine whether this child is safe for the mirror
                 break
     children_matrix = children_matrix.transpose()
