@@ -39,6 +39,7 @@ somehow add to graph
 
 """
 from people import *
+from people_functions import *
 
 """Original function keeps track of time it ran"""
 num_genes = 10              # number of genes of each person (or mirror actuators)
@@ -54,7 +55,7 @@ mutation_percentage = 20    # if you want 20% mutation, enter 20
 create the dm_actuator_neighbor
 array and connect to any needed devices'''
 
-parents = parent_group(num_init_parents, num_genes, init_voltage)    # create parents from above constraints
+parents = parent_group(num_init_parents, num_genes, init_voltage,)    # create parents from above constraints
 children = child_group(num_init_children, parents)       # create children from the given parents
 
 children.mutate(mutation_percentage)    # mutate the children
@@ -62,8 +63,8 @@ figure_of_merit_matrix = test_people(children, parents, num_init_parents, num_in
 print(figure_of_merit_matrix)
 best_parent_indices, best_child_indices = sort_people(figure_of_merit_matrix, num_parents, num_init_parents)      # find the best performing parents and children
 print('done?')
-'''
-while True:
+
+for i in range(1):
     parents = parent_group(num_parents,num_genes, None, best_child_indices, children, best_parent_indices, parents)   # create parents from the best performing children
     children = child_group(num_children, parents)       # create children from the just created parents
     

@@ -3,11 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-<<<<<<< HEAD
-    <ProjectGuid>e0ad5018-3590-48de-83f7-9ba2775f096b</ProjectGuid>
-=======
-    <ProjectGuid>429198f7-76e5-45c7-9d8f-4db0e4a8c11b</ProjectGuid>
->>>>>>> 8fea6829cb38a493055f74522f00c0a4ece7edbe
+    <ProjectGuid>0f5c65e2-0a97-43c4-8d4f-fa08376ba560</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>GeneticAlgorithm.py</StartupFile>
     <SearchPath>
@@ -26,23 +22,16 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-<<<<<<< HEAD
     <Compile Include="GeneticAlgorithm.py" />
+    <Compile Include="mirror_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="people_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="original_LabView.py" />
     <Compile Include="people.py" />
     <Compile Include="x_tools.py" />
-=======
-    <Compile Include="original_LabView.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="people.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="GeneticAlgorithm.py" />
-    <Compile Include="x_tools.py">
-      <SubType>Code</SubType>
-    </Compile>
->>>>>>> 8fea6829cb38a493055f74522f00c0a4ece7edbe
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
