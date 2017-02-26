@@ -1,10 +1,11 @@
-import numpy as np
+"""These functions manipulate the people generated in people.py"""
+import numpy as np  # numpy is a python library for scientific computing
 
-def test_people(child_group, parent_group, num_parents, num_children):
+def test_people(child_group, parent_group, num_parents, num_children, dm_actuators):
     """determine the figure of merit for each parent and child"""
     figure_of_merit_matrix = np.empty(num_children + num_parents)       # initialize the figure of merit's matrix to have indices for each parent and child
-    child_group.test_children(figure_of_merit_matrix, num_parents)      # measure the children's figure of merit
-    parent_group.test_parents(figure_of_merit_matrix)      # measure the parents' figure of merit
+    child_group.test_children(figure_of_merit_matrix, num_parents, dm_actuators)      # measure the children's figure of merit
+    parent_group.test_parents(figure_of_merit_matrix, dm_actuators)      # measure the parents' figure of merit
     return figure_of_merit_matrix
 
 def sort_people(figure_of_merit_matrix, parent_group, child_group, num_parents, num_init_parents = None):

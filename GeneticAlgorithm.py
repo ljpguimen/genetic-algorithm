@@ -14,18 +14,20 @@ read diode  # what is the functionality of read diode at the beginning?
 
 somehow Add the children and effectiveness to the graph
 
-
 """
 import people
 import people_functions as people_f
 import msvcrt
+import mirror_functions as mirror_f
+import numpy as np
 
+# // comment all of the code
 # // do the if def main(): thing for the rest of the files
 
 #def genetic_algorithm():
 # also make the user able to change things like mutation percentage or any other relevant variable
 """Original function keeps track of time it ran"""
-num_genes = 10              # number of genes of each person (or mirror actuators)
+num_genes = 37              # number of genes of each person (or mirror actuators)
 num_init_parents = 1        # number of parents to start with
 num_init_children = 10      # number of starting 
 filename = None             # name of file to read from
@@ -41,11 +43,14 @@ array and connect to any needed devices'''
 
 print('Press the enter key if you would like to end the program')
 
-parents = people.parent_group(num_init_parents, num_genes, init_voltage, filename)    # create parents from above constraints
-children = people.child_group(num_init_children, parents)       # create children from the given parents
+dm_actuators = mirror_f.acuator_array()
 
-children.mutate(mutation_percentage)    # mutate the children
-figure_of_merit_matrix = people_f.test_people(children, parents, num_init_parents, num_init_children)     # determine the figure of merit for each parent and child
+
+parents = people.parent_group(num_init_parents, num_genes, init_voltage, filename)    # create parents from above constraints
+children = people.child_group(num_init_children, parents, dm_actuators)       # create children from the given parents
+
+children.mutate(mutation_percentage, dm_actuators)    # mutate the children
+figure_of_merit_matrix = people_f.test_people(children, parents, num_init_parents, num_init_children, dm_actuators)     # determine the figure of merit for each parent and child
 
 best_parent_indices, best_child_indices, best_person = people_f.sort_people(figure_of_merit_matrix, parents, children, num_parents, num_init_parents)      # find the best performing parents and children
 print('best_person\n', best_person)
@@ -55,10 +60,10 @@ while True:
         if msvcrt.getwche() == '\r' or msvcrt.getwche() == '\n':
             break
     parents = people.parent_group(num_parents,num_genes, None, None, best_child_indices, children, best_parent_indices, parents)   # create parents from the best performing children
-    children = people.child_group(num_children, parents)       # create children from the just created parents
+    children = people.child_group(num_children, parents, dm_actuators)       # create children from the just created parents
 
-    children.mutate(mutation_percentage)    # mutate the children
-    figure_of_merit_matrix = people_f.test_people(children, parents, num_parents, num_children)      # determine the figure of merit of each parent anc child
+    children.mutate(mutation_percentage, dm_actuators)    # mutate the children
+    figure_of_merit_matrix = people_f.test_people(children, parents, num_parents, num_children, dm_actuators)      # determine the figure of merit of each parent anc child
     best_parent_indices, best_child_indices, new_best_person = people_f.sort_people(figure_of_merit_matrix, parents, children, num_parents)        # find the best performing parents and children
     if new_best_person[1] > best_person[1]:
         best_person = new_best_person

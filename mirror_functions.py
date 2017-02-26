@@ -1,17 +1,17 @@
 """Note, x_tools only returns True because I was told I did not need to finish it"""
 
-class x_tools(object):
+class acuator_array(object):
     """This makes sure the voltage difference between neighboring actuators isn't too high"""
     def __init__(self):
         dm_array = [[-1,-1,28,27,26,-1,-1],
                     [-1,29,14,13,12,25,-1],
-                    [30,15,4,3,2,11,24],
-                    [31,16,5,0,1,10,23],
-                    [32,17,6,7,8,9,22],
+                    [30,15, 4, 3, 2,11,24],
+                    [31,16, 5, 0, 1,10,23],
+                    [32,17, 6, 7, 8, 9,22],
                     [-1,33,18,19,20,21,-1],
                     [-1,-1,34,35,36,-1,-1]]
         
-        dm_actuator_neighbor = []
+        dm_actuator_neighbors = []
         for i in range(len(dm_array)):
             for j in range(len(dm_array[i])):
                 if abs(i-3) + abs(j-3) < 5:
@@ -19,33 +19,32 @@ class x_tools(object):
                     if j !=len(dm_array[i])-1:
                         neighbor = dm_array[i][j+1]
                         if neighbor != -1:
-                            dm_actuator_neighbor.append([start_actuator,neighbor])
+                            dm_actuator_neighbors.append([start_actuator,neighbor])
                     if i!=len(dm_array)-1:
                         neighbor = dm_array[i+1][j]
                         if neighbor != -1:
-                            dm_actuator_neighbor.append([start_actuator,neighbor])
+                            dm_actuator_neighbors.append([start_actuator,neighbor])
                         if j != len(dm_array[i])-1:
                             neighbor = dm_array[i+1][j+1]
                             if neighbor != -1:
-                                dm_actuator_neighbor.append([start_actuator,neighbor])
+                                dm_actuator_neighbors.append([start_actuator,neighbor])
                         if j!=0:
                             neighbor = dm_array[i+1][j-1]
                             if neighbor != -1:
-                                dm_actuator_neighbor.append([start_actuator,neighbor])
-        
-        self.dm_actuator_neighbors = dm_actuator_neighbor
-                                
+                                dm_actuator_neighbors.append([start_actuator,neighbor])
+        print('dm_actuator_neighbors\n', dm_actuator_neighbors)
+        self.dm_actuator_neighbors = dm_actuator_neighbors
+
     def fits_mirror(self,genes):
         """Determine if a child breaks the mirror"""
-        return True
         # don't need this function for Jungmoo currently. I will fix this later.
-
         genes = genes*2.625   # This is the DM constant or something//
         valid = True    # the child is good until proven bad
         for i in range(len(self.dm_actuator_neighbors)):      # Test every actuator value with its neighbors' values
             valid = valid and abs(genes[self.dm_actuator_neighbors[i][0]]-genes[self.dm_actuator_neighbors[i][1]]) <= 30  # test voltage difference between neighboring actuators is less than 30
         return valid
     
+
 
 """ This is brute force
 # array which contains all actuator neighbor pairs
@@ -64,9 +63,6 @@ dm_neighbors.sort()
 print(dm_neighbors)
 print(dm_actuator_neighbor == dm_neighbors)
 """
-
-
-check_genes = x_tools() # this checks whether a set of genes fits on the mirror without breaking it
 
 def write_to_mirror():
     return # //write this function

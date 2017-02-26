@@ -1,3 +1,4 @@
+"""These functions calculate the figure of merit for each person"""
 def test_genes(genes):
     """Compute figure of merit that is least squares of y = index_value"""
     figure_of_merit = 0
