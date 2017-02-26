@@ -1,10 +1,14 @@
 import numpy as np
 import math
 import time
-from mirror_functions import *
+import mirror_functions as mirror_f
 import csv
+import file_functions as file_f
+import figure_of_merit_functions as figure_of_merit_f
 
+# // comment all of the code
 # // do I really need a amount mutated attribute?
+# // need to check in all cases whether person breaks mirror
 
 class person(object):
     """A person contains some number of genes, a figure of merit, and a mutation amount"""
@@ -12,30 +16,29 @@ class person(object):
         self.genes = np.empty(num_genes, 'float', 'C')  # a person should have an empty array the size its number of genes
         self.amount_mutated = 0.0       # the person hasn't mutated at all when they are created
         self.num_genes = num_genes      # store the number of genes the person has
-
+        
     def test_person(self):
         """write each person to the mirror for figure of merit measuring"""
         waiting_time = 0.01     # number of seconds to wait between writing voltages to the mirror and measuring the figure of merit 
-        write_to_mirror()       # //write the genes to the mirror
+        #fits_mirror(self.genes)
+        mirror_f.write_to_mirror()       # //write the genes to the mirror
         time.sleep(waiting_time)    # wait for the given amount of time
         return self.figure_of_merit_test()  # return the measured value
 
     def figure_of_merit_test(self):
         """measure the figure of merit of each person"""
-        return float(np.random.randint(0, 100)) # //currently for test purposes
+        return figure_of_merit_f.test_genes(self.genes)
+        #return float(np.random.randint(0, 100)) # //currently for test purposes
         
 
 
 class parent(person):
     """Parent is a person with a good figure of merit who makes new children"""
-    def __init__(self, num_genes, init_voltage = None, filename = None, person_genes = None):
+    def __init__(self, num_genes, init_voltage = None, person_genes = None):
         super().__init__(num_genes)     # inherit the attributes from the person class
         if not (init_voltage is None):
             for i in range(self.num_genes):    # for each gene in the parent
                 self.genes[i] = init_voltage    # make each gene's value equal to the initial voltage
-        elif not (file_values is None):
-            for i in range(self.num_genes):
-                self.genes[i] = file_values[i]
         elif not (person_genes is None):
             self.genes = person_genes
         else:
@@ -52,27 +55,26 @@ class parent_group(object):
         if not (best_child_indices is None) and not (best_parent_indices is None):    # if indices of the child and parents were given//what if only the best were in the parents or only in the children
             parents = np.empty(0, parent)
             for i in range(best_child_indices.size):   # create i children
-                parents = np.append(parents,parent(num_genes, None, None, child_group.children[best_child_indices[i]].genes))
+                parents = np.append(parents,parent(num_genes, None, child_group.children[best_child_indices[i]].genes))
             for i in range(best_parent_indices.size):
-                parents = np.append(parents,parent(num_genes, None, None, parent_group.parents[best_parent_indices[i]].genes))
+                parents = np.append(parents,parent(num_genes, None, parent_group.parents[best_parent_indices[i]].genes))
             self.parents = parents
         elif not (best_child_indices is None):
             parents = np.empty(0, parent)
             for i in range(best_child_indices.size):   # create i children
-                parents = np.append(parents,parent(num_genes, None, None, child_group.children[best_child_indices[i]].genes))
+                parents = np.append(parents,parent(num_genes, None, child_group.children[best_child_indices[i]].genes))
             self.parents = parents
         elif not (best_parent_indices is None):
             parents = np.empty(0, parent)
             for i in range(best_parent_indices.size):
-                parents = np.append(parents,parent(num_genes, None, None, parent_group.parents[best_parent_indices[i]].genes))
+                parents = np.append(parents,parent(num_genes, None, parent_group.parents[best_parent_indices[i]].genes))
             self.parents = parents
         elif not (init_voltage is None):    # if an initial voltage is given
             self.parents = np.full((num_parents),parent(num_genes, init_voltage),parent,'C')    # create an array of parents where every gene is the initial voltage
         elif not (filename is None):
             # make sure filename is a string
-            with open(filename, 'r') as f:
-                return [float(row[1]) for row in csv.reader(f, delimiter='\t')]
-            self.parents = np.full((num_parents),parent(num_genes, None, filename),parent,'C')    # create an array of parents from the file
+            file_genes = file_f.read_adf(filename, num_genes)  # read the genes from a file
+            self.parents = np.full((num_parents),parent(num_genes, None, file_genes),parent,'C')    # create an array of parents from the file genes
         else:
             print("Error: parents weren't initialized correctly")   # the correct output arguments weren't given
 
@@ -99,7 +101,7 @@ class child(person):
             for j in range(self.num_genes):     # for each of the child's genes
                 random_parent = np.random.randint(0,parent_group.num_parents)   # choose a random parent to inherit from
                 self.genes[j] = parent_group.parents[random_parent].genes[j]    # inherit the jth gene from this random parent
-            if True:     # check if the child breaks the mirror
+            if True:# fits_mirror()     # check if the child breaks the mirror
                 break       # if the child doesn't break the mirror, leave the while loop
 
     def mutate(self, mut_squared):
@@ -117,8 +119,8 @@ class child(person):
                         old_genes[j] = new_gene  # pass on the new gene
                         mutation_vector = np.append(mutation_vector, mutation_amount[j])      # remember the amount of mutation for that gene
                 # Note: if one of the if statement conditions isn't met, the original gene is kept
-            if True:    # determine whether this child is safe for the mirror
-                print(self.genes)
+            if True:#fits_mirror()    # determine whether this child is safe for the mirror
+                #print(self.genes)
                 if mutation_vector.size:    # if there were any mutations
                     self.amount_mutated = np.mean(mutation_vector)     # store the amount this gene was mutated by
                 self.genes = old_genes      # the child's new genes are the successfully mutated genes

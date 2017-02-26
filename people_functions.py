@@ -7,12 +7,16 @@ def test_people(child_group, parent_group, num_parents, num_children):
     parent_group.test_parents(figure_of_merit_matrix)      # measure the parents' figure of merit
     return figure_of_merit_matrix
 
-def sort_people(figure_of_merit_matrix,num_parents, num_init_parents = None):
+def sort_people(figure_of_merit_matrix, parent_group, child_group, num_parents, num_init_parents = None):
     """find the top performing parents and children"""
     if num_init_parents is None:    # if the number initial parents isn't given
         num_init_parents = num_parents  # the number of initial parents is the number of parents
-    temp = np.argpartition(-figure_of_merit_matrix, num_parents)    # create an array where the first 10 values are the indices of the 10 best performing people
-    best_people_indices = temp[:num_parents]    # create an array containing the indices of the best performing children
+    unordered_best_indices = np.argpartition(-figure_of_merit_matrix, num_parents)[:num_parents]    # find indices of the best performing people
+    best_people_indices = unordered_best_indices[np.argsort(-figure_of_merit_matrix[unordered_best_indices])]  # sort the best people from best to worst
+    if best_people_indices[0] < num_init_parents:   # if the best person is a parent
+        best_person = [parent_group.parents[best_people_indices[0]].genes, figure_of_merit_matrix[best_people_indices[0]]]    # store best person and their figure of merit
+    else:   # since the best person isn't a parent, they must be a child
+        best_person = [child_group.children[best_people_indices[0]-num_init_parents].genes, figure_of_merit_matrix[best_people_indices[0]]]    # store best person and their figure of merit
     best_parent_indices = np.empty(0, int)    # initialize the vector that will contain the indices of the best performing parents
     best_child_indices = np.empty(0, int)     # initialize the vector that will contain the indices of the best performing children
     for i in range(best_people_indices.size):   # determine whether each index is a parent or child
@@ -24,4 +28,4 @@ def sort_people(figure_of_merit_matrix,num_parents, num_init_parents = None):
         best_parent_indices = None      # set the array of indices to a None value
     if best_child_indices.size == 0:    # if none of the children were the best
         best_child_indices = None       # set the array of indices to a None value
-    return best_parent_indices, best_child_indices
+    return best_parent_indices, best_child_indices, best_person

@@ -22,6 +22,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="figure_of_merit_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="file_functions.py" />
     <Compile Include="GeneticAlgorithm.py" />
     <Compile Include="mirror_functions.py">
       <SubType>Code</SubType>
