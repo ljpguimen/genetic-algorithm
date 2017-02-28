@@ -102,30 +102,30 @@ class child(person):
             if dm_actuators.fits_mirror(self.genes):     # check if the child breaks the mirror
                 break       # if the child doesn't break the mirror, leave the while loop
             else:
-                print('broken genes')
+                print('broken inherited genes')
 
     def mutate(self, mut_squared, dm_actuators):
         """mutates each child according to the mutation percentage given"""
         while True:     # Make sure the mutated child doesn't break the mirror
-            old_genes = self.genes  # don't mutate the genes directly in case the mutated genes break the mirror
+            new_genes = self.genes  # don't mutate the genes directly in case the mutated genes break the mirror
             mutation_vector = np.empty(0,float,'C')     # Initialize vector to store the amounts that genes are mutated by
             mutation_amount = np.random.random_integers(-10000,10000,self.num_genes)/10000    # create num_genes number of random numbers from -1 to 1
             mutation_condition = np.random.random_integers(0,10000,self.num_genes)/10000    # Generate num_genes number of random numbers from 0 and 1
             for j in range(self.num_genes):        # Attempt to mutate every gene
                 gauss_num = math.exp(-mutation_amount[j]*mutation_amount[j]/mut_squared)      # Generate random number in a gaussian distribution
                 if (mutation_condition[j] < gauss_num):    # this makes smaller mutations more probable
-                    new_gene = abs(mutation_amount[j]*100 + old_genes[j])     # mutate the gene
+                    new_gene = abs(mutation_amount[j]*100 + new_genes[j])     # mutate the gene
                     if new_gene < 100:     # new_gene is good if abs(new_gene) < 100
-                        old_genes[j] = new_gene  # pass on the new gene
+                        new_genes[j] = new_gene  # pass on the new gene
                         mutation_vector = np.append(mutation_vector, mutation_amount[j])      # remember the amount of mutation for that gene
                 # Note: if one of the if statement conditions isn't met, the original gene is kept
-            if dm_actuators.fits_mirror(self.genes):    # determine whether this child is safe for the mirror
+            if dm_actuators.fits_mirror(new_genes):    # determine whether this child is safe for the mirror
                 if mutation_vector.size:    # if there were any mutations
                     self.amount_mutated = np.mean(mutation_vector)     # store the amount this gene was mutated by
-                self.genes = old_genes      # the child's new genes are the successfully mutated genes
+                self.genes = new_genes      # the child's new genes are the successfully mutated genes
                 break   # get out of the while loop and exit the function
             else:
-                print('broken genes')
+                print('broken mutated genes')
 
 
 class child_group(object):

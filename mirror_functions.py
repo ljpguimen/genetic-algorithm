@@ -32,7 +32,6 @@ class acuator_array(object):
                             neighbor = dm_array[i+1][j-1]
                             if neighbor != -1:
                                 dm_actuator_neighbors.append([start_actuator,neighbor])
-        print('dm_actuator_neighbors\n', dm_actuator_neighbors)
         self.dm_actuator_neighbors = dm_actuator_neighbors
 
     def fits_mirror(self,genes):

@@ -44,12 +44,13 @@ array and connect to any needed devices'''
 print('Press the enter key if you would like to end the program')
 
 dm_actuators = mirror_f.acuator_array()
-
-
+parent = people.parent(num_genes, init_voltage)
 parents = people.parent_group(num_init_parents, num_genes, init_voltage, filename)    # create parents from above constraints
 children = people.child_group(num_init_children, parents, dm_actuators)       # create children from the given parents
 
-children.mutate(mutation_percentage, dm_actuators)    # mutate the children
+mut_squared = mutation_percentage*mutation_percentage/10000
+children.mutate(mut_squared, dm_actuators)    # mutate the children
+
 figure_of_merit_matrix = people_f.test_people(children, parents, num_init_parents, num_init_children, dm_actuators)     # determine the figure of merit for each parent and child
 
 best_parent_indices, best_child_indices, best_person = people_f.sort_people(figure_of_merit_matrix, parents, children, num_parents, num_init_parents)      # find the best performing parents and children
@@ -62,12 +63,13 @@ while True:
     parents = people.parent_group(num_parents,num_genes, None, None, best_child_indices, children, best_parent_indices, parents)   # create parents from the best performing children
     children = people.child_group(num_children, parents, dm_actuators)       # create children from the just created parents
 
-    children.mutate(mutation_percentage, dm_actuators)    # mutate the children
+    children.mutate(mut_squared, dm_actuators)    # mutate the children
     figure_of_merit_matrix = people_f.test_people(children, parents, num_parents, num_children, dm_actuators)      # determine the figure of merit of each parent anc child
     best_parent_indices, best_child_indices, new_best_person = people_f.sort_people(figure_of_merit_matrix, parents, children, num_parents)        # find the best performing parents and children
     if new_best_person[1] > best_person[1]:
         best_person = new_best_person
     print('best_person\n', best_person)
+    
 """
 def main():
  # If this function is being run explicitly, I want the genetic algorithm funciton to be run.
@@ -75,3 +77,4 @@ def main():
     if __name__ == "__main__":
         genetic_algorithm()
         """
+        
