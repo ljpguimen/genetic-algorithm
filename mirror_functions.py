@@ -36,11 +36,12 @@ class acuator_array(object):
 
     def fits_mirror(self,genes):
         """Determine if a child breaks the mirror"""
+        return True
         # don't need this function for Jungmoo currently. I will fix this later.
         genes = genes*2.625   # This is the DM constant or something//
         valid = True    # the child is good until proven bad
         for i in range(len(self.dm_actuator_neighbors)):      # Test every actuator value with its neighbors' values
-            valid = valid and abs(genes[self.dm_actuator_neighbors[i][0]]-genes[self.dm_actuator_neighbors[i][1]]) <= 30  # test voltage difference between neighboring actuators is less than 30
+            valid = valid and (abs(genes[self.dm_actuator_neighbors[i][0]]-genes[self.dm_actuator_neighbors[i][1]]) <= 30)  # test voltage difference between neighboring actuators is less than 30
         return valid
     
 

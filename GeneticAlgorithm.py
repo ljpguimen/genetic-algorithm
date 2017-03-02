@@ -21,8 +21,11 @@ import msvcrt
 import mirror_functions as mirror_f
 import numpy as np
 
+#import original_LabView
+
 # // comment all of the code
 # // do the if def main(): thing for the rest of the files
+# // fix mirror checking
 
 #def genetic_algorithm():
 # also make the user able to change things like mutation percentage or any other relevant variable
@@ -35,7 +38,7 @@ filename = None             # name of file to read from
 num_parents = 10            # number of parents in loop iterations
 num_children = 100          # number of children in loop iterations
 init_voltage = 30           # initial voltage on mirror actuators
-mutation_percentage = 20    # if you want 20% mutation, enter 20
+mutation_percentage = 5    # if you want 20% mutation, enter 20
 
 '''have an initialize function here which would be able to 
 create the dm_actuator_neighbor
@@ -48,8 +51,7 @@ parent = people.parent(num_genes, init_voltage)
 parents = people.parent_group(num_init_parents, num_genes, init_voltage, filename)    # create parents from above constraints
 children = people.child_group(num_init_children, parents, dm_actuators)       # create children from the given parents
 
-mut_squared = mutation_percentage*mutation_percentage/10000
-children.mutate(mut_squared, dm_actuators)    # mutate the children
+children.mutate(mutation_percentage, dm_actuators)    # mutate the children
 
 figure_of_merit_matrix = people_f.test_people(children, parents, num_init_parents, num_init_children, dm_actuators)     # determine the figure of merit for each parent and child
 
@@ -63,7 +65,7 @@ while True:
     parents = people.parent_group(num_parents,num_genes, None, None, best_child_indices, children, best_parent_indices, parents)   # create parents from the best performing children
     children = people.child_group(num_children, parents, dm_actuators)       # create children from the just created parents
 
-    children.mutate(mut_squared, dm_actuators)    # mutate the children
+    children.mutate(mutation_percentage, dm_actuators)    # mutate the children
     figure_of_merit_matrix = people_f.test_people(children, parents, num_parents, num_children, dm_actuators)      # determine the figure of merit of each parent anc child
     best_parent_indices, best_child_indices, new_best_person = people_f.sort_people(figure_of_merit_matrix, parents, children, num_parents)        # find the best performing parents and children
     if new_best_person[1] > best_person[1]:

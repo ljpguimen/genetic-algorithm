@@ -3,7 +3,8 @@ import math
 import sys
 import numpy as np
 
-
+def x_tools(bool):
+    return True
 # Creates a given number of children based on the given parents' genes
 def create_children(num_child, parent_matrix):
     """This creates children"""
@@ -30,6 +31,7 @@ def create_children(num_child, parent_matrix):
 def genetic_mutation(children_matrix, mutation_percentage):
     mutation_percentage = mutation_percentage / 100     # convert from percentage to decimal
     mut_squared = mutation_percentage*mutation_percentage    # this is used for a gaussian distribution
+    print('mut_squared', mut_squared)
     children_matrix = np.transpose(children_matrix)   # Transpose so each child has its own row
     for i in range(children_matrix.shape[0]):       # Mutate each child. Each i is a different child
         while True:     # Mutate each child until it doesn't break the mirror
@@ -39,7 +41,9 @@ def genetic_mutation(children_matrix, mutation_percentage):
             rand_nums2 = np.random.random_integers(0,10000,children_matrix[i].size)/10000    # Generate random number between 0 and 1
             vector_of_rand_nums = np.empty(0,float,'C')
             for j in range(children_matrix[i].size):        # Mutate every gene
+                print('stuff\n', -rand_nums[j]*rand_nums[j]/mut_squared)
                 new_num = math.exp(-rand_nums[j]*rand_nums[j]/mut_squared)      # generate number in gaussian distribution where the standard deviation is the mutation percentage
+                print('gauss_num\n', new_num)
                 if (rand_nums2[j] < new_num) and (j < index):    # if the generated number is less than a random number between 0 and 1, mutate the gene
                     new_gene = rand_nums[j]*100 + children_matrix[i][j]     # mutate the gene
                     if new_gene > -100 and new_gene < 100:     # new_gene is good if abs(new_gene) < 100
@@ -84,12 +88,12 @@ def keep_best_people(chilren_matrix_with_parents):
 
 
 num_children = 10
-parent_matrix = np.full((37,1),30,'double', 'C')    # Create zeros array of size 2 x 2 containing float types and indexed like a C matrix
+parent_matrix = np.full((5,1),30,'double', 'C')    # Create zeros array of size 2 x 2 containing float types and indexed like a C matrix
 print('Parent')
 print(parent_matrix)
 child_matrix = create_children(num_children,parent_matrix)
 print('Child')
 print(child_matrix)
-mutation_percent = 100
+mutation_percent = 20
 #x_tools(child_matrix)
 print(genetic_mutation(child_matrix,mutation_percent))

@@ -104,7 +104,7 @@ class child(person):
             else:
                 print('broken inherited genes')
 
-    def mutate(self, mut_squared, dm_actuators):
+    def mutate_child(self, mut_squared, dm_actuators):
         """mutates each child according to the mutation percentage given"""
         while True:     # Make sure the mutated child doesn't break the mirror
             new_genes = self.genes  # don't mutate the genes directly in case the mutated genes break the mirror
@@ -126,6 +126,7 @@ class child(person):
                 break   # get out of the while loop and exit the function
             else:
                 print('broken mutated genes')
+                print('new_genes\n', new_genes)
 
 
 class child_group(object):
@@ -146,7 +147,7 @@ class child_group(object):
         mutation = mutation_percentage / 100    # convert the percentage to a decimal
         mutation_squared = mutation*mutation    # square the mutation percentage for later use
         for i in range(self.num_children):   # Mutate each child
-            self.children[i].mutate(mutation_squared, dm_actuators)        # call the mutate attribute    
+            self.children[i].mutate_child(mutation_squared, dm_actuators)        # call the mutate attribute    
 
     def test_children(self, figure_of_merit_matrix, num_parents, dm_actuators):
         """determine the figure of merit for each child"""
