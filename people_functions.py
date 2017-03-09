@@ -30,3 +30,6 @@ def sort_people(figure_of_merit_matrix, parent_group, child_group, num_parents, 
     if best_child_indices.size == 0:    # if none of the children were the best
         best_child_indices = None       # set the array of indices to a None value
     return best_parent_indices, best_child_indices, best_person
+
+if __name__ == "__main__":
+    print('You meant to run GeneticAlgorithm.py')

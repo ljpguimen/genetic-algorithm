@@ -6,7 +6,6 @@ import file_functions as file_f
 import figure_of_merit_functions as figure_of_merit_f
 
 # // do I really need a amount mutated attribute?
-# // need to check in all cases whether person breaks mirror
 
 class person(object):
     """A person contains some number of genes, a figure of merit, and a mutation amount"""
@@ -18,63 +17,61 @@ class person(object):
     def test_person(self, dm_actuators):
         """write each person to the mirror for figure of merit measuring"""
         waiting_time = 0.01     # number of seconds to wait between writing voltages to the mirror and measuring the figure of merit 
-        dm_actuators.fits_mirror(self.genes)
-        mirror_f.write_to_mirror()       # //write the genes to the mirror
+        mirror_f.write_to_mirror(self.genes, dm_actuators)       # //write the genes to the mirror
         time.sleep(waiting_time)    # wait for the given amount of time
         return self.figure_of_merit_test()  # return the measured value
 
     def figure_of_merit_test(self):
         """measure the figure of merit of each person"""
-        return figure_of_merit_f.test_genes(self.genes)
-        #return float(np.random.randint(0, 100)) # //currently for test purposes
+        return figure_of_merit_f.test_genes(self.genes)     # use the figure_of_merit_functions.py to determine the figure of merit
         
-
 
 class parent(person):
     """Parent is a person with a good figure of merit who makes new children"""
     def __init__(self, num_genes, init_voltage = None, person_genes = None):
         super().__init__(num_genes)     # inherit the attributes from the person class
-        if not (init_voltage is None):
+        if not (init_voltage is None):  # check if an initial voltage was entered
             for i in range(self.num_genes):    # for each gene in the parent
                 self.genes[i] = init_voltage    # make each gene's value equal to the initial voltage
-        elif not (person_genes is None):
-            self.genes = person_genes
-        else:
-            print('Error: parent not initialized correctly')
-
+        elif not (person_genes is None):    # check if another person's genes were entered
+            self.genes = person_genes   # this parent's genes are the other person's genes now
+        else:   # if none of the above initialization information was entered
+            print('Error: parent not given enough initialization information')
 
 
 class parent_group(object):
     """creates an array of parents"""
     def __init__(self, num_parents, num_genes, init_voltage = None, filename = None, best_child_indices = None, child_group = None, 
-                 best_parent_indices = None, parent_group = None):   # //Change this to correspond to parent constructor
+                 best_parent_indices = None, parent_group = None):   # construct a group of parents based on inputs
         self.num_genes = num_genes          # set the number of parents in the group
         self.num_parents = num_parents      # keep track of the number of genes in each parent
-        if not (best_child_indices is None) and not (best_parent_indices is None):    # if indices of the child and parents were given//what if only the best were in the parents or only in the children
-            parents = np.empty(0, parent)
-            for i in range(best_child_indices.size):   # create i children
-                parents = np.append(parents,parent(num_genes, None, child_group.children[best_child_indices[i]].genes))
-            for i in range(best_parent_indices.size):
-                parents = np.append(parents,parent(num_genes, None, parent_group.parents[best_parent_indices[i]].genes))
-            self.parents = parents
-        elif not (best_child_indices is None):
-            parents = np.empty(0, parent)
-            for i in range(best_child_indices.size):   # create i children
-                parents = np.append(parents,parent(num_genes, None, child_group.children[best_child_indices[i]].genes))
-            self.parents = parents
-        elif not (best_parent_indices is None):
-            parents = np.empty(0, parent)
-            for i in range(best_parent_indices.size):
-                parents = np.append(parents,parent(num_genes, None, parent_group.parents[best_parent_indices[i]].genes))
-            self.parents = parents
+        if not (init_voltage is None) and not (person_genes is None):   # //if both an initial voltage and another person's genes are entered
+            print('Error: You tried to create a parent from another person and using an initial voltage')
+        if not (best_child_indices is None) and not (best_parent_indices is None):    # if indices of the best children and parents were given
+            parents = np.empty(0, parent)   # initialize the array of parents
+            for i in range(best_child_indices.size):   # for each of the best children
+                parents = np.append(parents,parent(num_genes, None, child_group.children[best_child_indices[i]].genes)) # use the best children's genes to make a new parent
+            for i in range(best_parent_indices.size):   # for each of the best parents
+                parents = np.append(parents,parent(num_genes, None, parent_group.parents[best_parent_indices[i]].genes))# use the best parents' genes to make a new parent
+            self.parents = parents  # make the new parents array the class object
+        elif not (best_child_indices is None):  # if only children had the best genes
+            parents = np.empty(0, parent)   # initialize the array of parents
+            for i in range(best_child_indices.size):   # for each of the best children
+                parents = np.append(parents,parent(num_genes, None, child_group.children[best_child_indices[i]].genes)) # use the best children's genes to make a new parent
+            self.parents = parents  # make the new parents array the class object
+        elif not (best_parent_indices is None): # if only parents had the best genes
+            parents = np.empty(0, parent)   # initialize the array of parents
+            for i in range(best_parent_indices.size):   # for each of the best parents
+                parents = np.append(parents,parent(num_genes, None, parent_group.parents[best_parent_indices[i]].genes))# use the best parents' genes to make a new parent
+            self.parents = parents  # make the new parents array the class object
         elif not (init_voltage is None):    # if an initial voltage is given
             self.parents = np.full((num_parents),parent(num_genes, init_voltage),parent,'C')    # create an array of parents where every gene is the initial voltage
-        elif not (filename is None):
-            # make sure filename is a string
+        elif not (filename is None):    # if a filename to read from was given
+            # //make sure filename is a string
             file_genes = file_f.read_adf(filename, num_genes)  # read the genes from a file
             self.parents = np.full((num_parents),parent(num_genes, None, file_genes),parent,'C')    # create an array of parents from the file genes
-        else:
-            print("Error: parents weren't initialized correctly")   # the correct output arguments weren't given
+        else:   
+            print("Error: parents weren't given enough initialization information")   # the correct output arguments weren't given
 
     def read_voltages_from_file(self, filename):
         return #//idk how to do this yet
@@ -82,9 +79,8 @@ class parent_group(object):
     def test_parents(self, figure_of_merit_matrix, dm_actuators):
         """determine the figure of merit of each parent""" 
         for i in range(self.num_parents):   # test each parent
-            figure_of_merit = self.parents[i].test_person(dm_actuators)     # seave each figure of merit
+            figure_of_merit = self.parents[i].test_person(dm_actuators)     # save each figure of merit
             figure_of_merit_matrix[i] = figure_of_merit     # put this figure of merit (FOM) in a matrix with the rest of the FOM's
-
 
 
 class child(person):
@@ -101,13 +97,13 @@ class child(person):
                 self.genes[j] = parent_group.parents[random_parent].genes[j]    # inherit the jth gene from this random parent
             if dm_actuators.fits_mirror(self.genes):     # check if the child breaks the mirror
                 break       # if the child doesn't break the mirror, leave the while loop
-            else:
-                print('broken inherited genes')
+            '''else:    # if the genes broke the mirror
+                print('broken inherited genes')'''
 
     def mutate_child(self, mut_squared, dm_actuators):
         """mutates each child according to the mutation percentage given"""
         while True:     # Make sure the mutated child doesn't break the mirror
-            new_genes = self.genes  # don't mutate the genes directly in case the mutated genes break the mirror
+            new_genes = self.genes.copy()  # don't mutate the genes directly in case the mutated genes break the mirror
             mutation_vector = np.empty(0,float,'C')     # Initialize vector to store the amounts that genes are mutated by
             mutation_amount = np.random.random_integers(-10000,10000,self.num_genes)/10000    # create num_genes number of random numbers from -1 to 1
             mutation_condition = np.random.random_integers(0,10000,self.num_genes)/10000    # Generate num_genes number of random numbers from 0 and 1
@@ -124,9 +120,8 @@ class child(person):
                     self.amount_mutated = np.mean(mutation_vector)     # store the amount this gene was mutated by
                 self.genes = new_genes      # the child's new genes are the successfully mutated genes
                 break   # get out of the while loop and exit the function
-            else:
-                print('broken mutated genes')
-                print('new_genes\n', new_genes)
+            '''else:    # if the genes broke the mirror
+                print('broken mutated genes')'''
 
 
 class child_group(object):
@@ -155,3 +150,6 @@ class child_group(object):
             figure_of_merit = self.children[i].test_person(dm_actuators)    # measure the figure of merit of the child
             figure_of_merit_matrix[num_parents+i] = figure_of_merit     # put this value in the matrix in the indices after the indices allotted for the parents
         return figure_of_merit_matrix
+
+if __name__ == "__main__":
+    print('You meant to run GeneticAlgorithm.py')
