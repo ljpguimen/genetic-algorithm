@@ -1,6 +1,10 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
-import visa
+import pyvisa
+
+INSTRUMENT_ADDRESS = '56::78'
+addresses_1_to_19 = []
+addresses_20_to_37 = []
 
 class acuator_array(object):
     """This makes sure the voltage difference between neighboring actuators isn't too high"""
@@ -70,6 +74,17 @@ print(dm_actuator_neighbor == dm_neighbors)
 def array_conversion(genes):    # // write this function
     return genes
 
+def write_to_board(addresses, voltages):
+    pci_card = pyvisa.ResourceManager()
+    pci_card.list_resources()
+    lib = pci_card.visalib
+    session = lib.open_default_resource_manager()
+    lib.map_address(session, 'PXI BAR0', 0, FF)
+    for i in range(voltages):
+        lib.poke_8(session, addresses[i], voltages[i])
+    lib.close(session)
+    return
+
 def write_to_mirror(genes, dm_actuators):
     within_range = True # the genes are in range unless proven to be out of range
     for i in range(genes):  # for each gene
@@ -78,12 +93,13 @@ def write_to_mirror(genes, dm_actuators):
         if dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # //
-            #send volt x64
+            write_to_board(addresses_1_to_19, genes[:18])
+            write_to_board(addresses_20_to_37, genes[18:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
         print('Error: Genes not in range')
-    return # //write this function
+    return
 
 if __name__ == "__main__":
     print('You meant to run GeneticAlgorithm.py')
