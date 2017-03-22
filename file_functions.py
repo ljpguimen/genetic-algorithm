@@ -3,6 +3,7 @@ import numpy as np
 
 # // enter the figure of merit as well
 # // how to get the date in python
+
 def write_to_adf(array, filename):
     # ask for user input as to what they want the file to be named
     with open(filename + '.adf', 'w') as fileout:   # open the file to write values to

@@ -4,105 +4,25 @@ import msvcrt
 import mirror_functions as mirror_f
 import file_functions as file_f
 import numpy as np
+import initialization_functions as initialization_f
 
+# // comment the rest of the code
 # // add in a graph of the mirror
 # // time the algorithm
 # // add graph of parents
 
-def change_value(datatype, lowerbound = None, upperbound = None):
-    """For datatype enter 'float', 'int', or 'string'"""
-    while True:
-        print('What would you like to change it to?')
-        if datatype == 'string':
-            new_value = input()    # get the new mutation percentage from the user
-            print('Is this input okay: ', new_value, ' (Enter y or n)')
-            good = input()
-            if good == 'y':
-                break
-        if datatype == 'int':
-            new_value = int(input())
-            if not(lowerbound is None) and not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
-                    print('Error: You entered a value that is not within (', lowerbound, ', ', upperbound, ')')
-            elif not(lowerbound is None):
-                if (new_value <= lowerbound):
-                    print('Error: You entered a value that is lower than or equal to ', lowerbound)
-            elif not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
-                    print('Error: You entered a value that is higher than or equal to ',upperbound)
-            print('Is this input okay: ', new_value, ' (Enter y or n)')
-            good = input()
-            if good == 'y':
-                break
-        if datatype == 'float':
-            new_value = float(input())
-            if not(lowerbound is None) and not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
-                    print('Error: You entered a value that is not within (', lowerbound, ', ', upperbound, ')')
-            elif not(lowerbound is None):
-                if (new_value <= lowerbound):
-                    print('Error: You entered a value that is lower than or equal to ', lowerbound)
-            elif not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
-                    print('Error: You entered a value that is higher than or equal to ',upperbound)
-            print('Is this input okay: ', new_value, ' (Enter y or n)')
-            good = input()
-            if good == 'y':
-                break
-    return new_value
-        
-    
 def genetic_algorithm():
-    # also make the user able to change things like mutation percentage or any other relevant variable
-    """Original function keeps track of time it ran"""
-    num_genes = 37              # number of genes of each person (or mirror actuators)
-    num_init_parents = 1        # number of parents to start with
-    num_init_children = 10     # number of starting 
-    
-    """Note: You can either have an initial voltage or a filename to read from, not both"""
-    init_voltage = 30           # initial voltage on mirror actuators
-    filename = None             # name of file to read from
-    '''Note: Enter the filename as a string without the .adf extension at  the end.
-             Also, it can only read the file if it is in the same folder as the program'''
+    print('You are running the genetic algorithm')
 
-    num_parents = 10            # number of parents in loop iterations
-    num_children = 100          # number of children in loop iterations
-    mutation_percentage = 5    # if you want 20% mutation, enter 20
-
-    # // have an initialize function here which connects to any needed devices
-    # // print current variables and ask whether these values are okay
-    
-    print('These are the current values: ')
-    print('\tNumber of initial parents: ', num_init_parents)
-    print('\tNumber of initial children: ', num_init_children, '\n')
-    print('\tNumber of parents: ', num_parents)
-    print('\tNumber of children: ', num_children, '\n')
-    print('\tFilename to read from: ', filename)
-    print('\tInitial voltage of starting parent: ', init_voltage, '\n')
-    print('Would you like to change any of these values?\nEnter "y" or "n"')
-    while True: # run an infinite loop until a key is pressed
-        if msvcrt.kbhit():  # if the keyboard was hit
-            keyboard_input = msvcrt.getwche()   # determine what was pressed on the keyboard
-            if keyboard_input == 'y':    # if the key pressed was the enter key
-                print('To change the number of initial parents, enter "init parents"')
-                print('To change the number of initial children, enter "init children"')
-                print('To change the number of parents, enter "parents"')
-                print('To change the number of children, enter "children"')
-                print('To change the filenmae or initial voltage, enter "init setting"')
-                while True:
-                    if msvcrt.kbhit():
-                        key_input = msvcrt.getwche()
-                        if key_input == 'init parents':
-                            num_init_parents = change_value('int', 1)
-                        elif key_input == 'init children':
-                            num_init_children = change_value('int', num_init_parents)
-                        #// finish this
-            if keyboard_input == 'n':
-                break # break out of the infinite loop
+    #This function sets all of the values of the number of parents, children, and mutation amount
+    num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage = initialization_f.initialize()
+    """Note: To change these for each iteration, go into inialization_functions.py in the initialize function"""
 
     print('Here are the options you have while the program is running:')
     print('\tPress the enter key if you would like to end the program')
-    print('\tPress "m" if you would like to change the mutation percentage\n')
+    print('\tPress "m" if you would like to change the mutation percentage')
+    print('\tPress "c" if you would like to change the number of children')
+    print('\tPrees "p" if you would like to change the number of parents')
     print('Press the enter key to start the program')
     while True: # run an infinite loop until a key is pressed
         if msvcrt.kbhit():  # if the keyboard was hit
@@ -115,9 +35,7 @@ def genetic_algorithm():
     children = people.child_group(num_init_children, parents, dm_actuators)       # create children from the given parents
 
     children.mutate(mutation_percentage, dm_actuators)    # mutate the children
-
     figure_of_merit_matrix = people_f.test_people(children, parents, num_init_parents, num_init_children, dm_actuators)     # determine the figure of merit for each parent and child
-
     best_parent_indices, best_child_indices, best_person = people_f.sort_people(figure_of_merit_matrix, parents, children, num_parents, num_init_parents)      # find the best performing parents and children
     print('best_person\n', best_person) # show the best person's genes and figure of merit
 
@@ -128,16 +46,16 @@ def genetic_algorithm():
                 break   # get out of the loop
             if keyboard_input == 'm':   # if the m key was pressed
                 print('\nThis is the current mutation percentage: ', mutation_percentage)
-                print('What would you like to change it to?')
-                #change_value()
-                while True: # run an infinite loop
-                    # // make sure the mutation input is an int or double
-                    mutation_change = float(input())    # get the new mutation percentage from the user
-                    if (mutation_change > 0) and (mutation_change <= 100):  # make sure the mutation percentage is within (0,100]
-                        mutation_percentage = mutation_change   # change the mutation percentage
-                        break   # get out of both infinite loops
-                    else:   # if the value wasn't in the correct range
-                        print('You entered a value that is not within (0, 100]')
+                mutation_percentage = initialization_f.change_value('float', 0, 100)
+                break
+            if keyboard_input == 'c':
+                print('\nThis is the current number of children: ', num_children)
+                mutation_percentage = initialization_f.change_value('int', num_parents-1)
+                break
+            if keyboard_input == 'p':
+                print('\nThis is the current number of parents: ', num_parents)
+                mutation_percentage = initialization_f.change_value('float', 0, num_children+1)
+                break
 
         parents = people.parent_group(num_parents,num_genes, None, None, best_child_indices, children, best_parent_indices, parents)   # create parents from the best performing children
         children = people.child_group(num_children, parents, dm_actuators)       # create children from the just created parents

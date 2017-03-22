@@ -3,8 +3,6 @@ import math
 import sys
 import numpy as np
 
-def x_tools(bool):
-    return True
 # Creates a given number of children based on the given parents' genes
 def create_children(num_child, parent_matrix):
     """This creates children"""

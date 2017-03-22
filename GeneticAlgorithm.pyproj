@@ -27,6 +27,9 @@
     </Compile>
     <Compile Include="file_functions.py" />
     <Compile Include="GeneticAlgorithm.py" />
+    <Compile Include="initialization_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mirror_functions.py">
       <SubType>Code</SubType>
     </Compile>
@@ -35,7 +38,6 @@
     </Compile>
     <Compile Include="original_LabView.py" />
     <Compile Include="people.py" />
-    <Compile Include="x_tools.py" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
