@@ -45,7 +45,7 @@ class parent_group(object):
                  best_parent_indices = None, parent_group = None):   # construct a group of parents based on inputs
         self.num_genes = num_genes          # set the number of parents in the group
         self.num_parents = num_parents      # keep track of the number of genes in each parent
-        if not (init_voltage is None) and not (person_genes is None):   # //if both an initial voltage and another person's genes are entered
+        if not (init_voltage is None) and not (filename is None):   # //if both an initial voltage and another person's genes are entered
             print('Error: You tried to create a parent from another person and using an initial voltage')
         if not (best_child_indices is None) and not (best_parent_indices is None):    # if indices of the best children and parents were given
             parents = np.empty(0, parent)   # initialize the array of parents

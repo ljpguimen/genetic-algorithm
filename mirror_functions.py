@@ -2,9 +2,10 @@
 
 import pyvisa
 
-INSTRUMENT_ADDRESS = '56::78'
-addresses_1_to_19 = []
-addresses_20_to_37 = []
+PCI_BOARDS = ['PXI4::5::INSTR', 'PXI4::4::INSTR']
+ACTUATOR_ADDRESSES = [[],[]]
+FIRST_ADDRESSES = 0
+SECOND_ADDRESSES = 1
 
 class acuator_array(object):
     """This makes sure the voltage difference between neighboring actuators isn't too high"""
@@ -74,27 +75,28 @@ print(dm_actuator_neighbor == dm_neighbors)
 def array_conversion(genes):    # // write this function
     return genes
 
-def write_to_board(addresses, voltages):
+def write_to_board(address, voltages):
     pci_card = pyvisa.ResourceManager()
-    pci_card.list_resources()
+    '''pci_card.list_resources()
+    deformable_mirror = pci_card.open_resource(PCI_BOARDS[address])
     lib = pci_card.visalib
     session = lib.open_default_resource_manager()
     lib.map_address(session, 'PXI BAR0', 0, FF)
     for i in range(voltages):
         lib.poke_8(session, addresses[i], voltages[i])
-    lib.close(session)
+    lib.close(session)'''
     return
 
 def write_to_mirror(genes, dm_actuators):
     within_range = True # the genes are in range unless proven to be out of range
-    for i in range(genes):  # for each gene
+    for i in range(genes.size):  # for each gene
         within_range = True and (genes[i] >= 0) and (genes[i] <= 250) # check that the voltages are between 0 and 250
     if within_range:    # if all of the genes are within the correct range
         if dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # //
-            write_to_board(addresses_1_to_19, genes[:18])
-            write_to_board(addresses_20_to_37, genes[18:])
+            write_to_board(FIRST_ADDRESSES, genes[:18])
+            write_to_board(SECOND_ADDRESSES, genes[18:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
