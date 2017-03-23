@@ -80,15 +80,17 @@ def array_conversion(genes):    # // write this function
 
 def write_to_board(address, voltages):
     pci_card = pyvisa.ResourceManager()
-    '''pci_card.list_resources()
+    print(pci_card)
+    print(pci_card.list_resources())
     deformable_mirror = pci_card.open_resource(PCI_BOARDS[address])
     lib = pci_card.visalib
     session = lib.open_default_resource_manager()
-    lib.map_address(session, 'PXI BAR0', 0, FF)
+    #FF not defined
+    '''lib.map_address(session, 'PXI BAR0', 0, FF)
     for i in range(voltages):
         lib.poke_8(session, addresses[i], voltages[i])
-    lib.close(session)'''
-    return
+    lib.close(session)
+    return'''
 
 def write_to_mirror(genes, dm_actuators):
     within_range = True # the genes are in range unless proven to be out of range
