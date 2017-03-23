@@ -1,6 +1,8 @@
 """These functions manipulate the people generated in people.py"""
 import numpy as np  # numpy is a python library for scientific computing
 
+# eventually speed up sorting by making a container with the parents and children
+
 def test_people(child_group, parent_group, num_parents, num_children, dm_actuators):
     """determine the figure of merit for each parent and child"""
     figure_of_merit_matrix = np.empty(num_children + num_parents)       # initialize the figure of merit's matrix to have indices for each parent and child

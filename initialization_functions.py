@@ -1,54 +1,52 @@
 """This file contains functions to initialize values and to change values which have been established"""
 import msvcrt
 
-# //comment the code
-
 def change_value(datatype, lowerbound = None, upperbound = None):
     """For datatype enter 'float', 'int', or 'string'
 The value must be within (lowerbound, upperbound)"""
-    while True:
+    while True: # create infinite loop
         print('What would you like to change it to?')
-        if datatype == 'string':
-            new_value = input()    # get the new mutation percentage from the user
+        if datatype == 'string':    # if the variable to be changed is a string
+            new_value = input()    # get the new value of the variable from the user
             print('Is this input okay: ', new_value, ' (Enter y or n)')
-            good = input()
-            if good == 'y':
-                break
-        if datatype == 'int':
-            new_value = int(input())
-            if not(lowerbound is None) and not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
+            good = input()  # get input from the user
+            if good == 'y': # if the input was good
+                break   # exit the while loop
+        if datatype == 'int':   # if the variable to be changed is an int
+            new_value = int(input())    # get the new value of the variable from the user
+            if not(lowerbound is None) and not(upperbound is None):     # if both upper and lower bounds were given
+                if (new_value <= lowerbound) or (new_value >= upperbound):  # check if this value is within the given bounds
                     print('Error: You entered a value that is not within (', lowerbound, ', ', upperbound, ')')
                     break
-            elif not(lowerbound is None):
-                if (new_value <= lowerbound):
+            elif not(lowerbound is None):   # if no upper bound was given 
+                if (new_value <= lowerbound):   # check if the value is too low
                     print('Error: You entered a value that is lower than or equal to ', lowerbound)
                     break            
-            elif not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
+            elif not(upperbound is None):   # if no lower bound was given 
+                if (new_value <= lowerbound) or (new_value >= upperbound):  # check if the value is too high
                     print('Error: You entered a value that is higher than or equal to ',upperbound)
                     break
             print('Is this input okay: ', new_value, ' (Enter y or n)')
-            good = input()
-            if good == 'y':
+            good = input()  # get input from the user
+            if good == 'y': # if the input was good
                 break
-        if datatype == 'float':
-            new_value = float(input())
-            if not(lowerbound is None) and not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
+        if datatype == 'float': # if the variable to be changed is a float
+            new_value = float(input())  # get the new value of the variable from the user
+            if not(lowerbound is None) and not(upperbound is None): # if both upper and lower bounds were given
+                if (new_value <= lowerbound) or (new_value >= upperbound):  # check if this value is within the given bounds
                     print('Error: You entered a value that is not within (', lowerbound, ', ', upperbound, ')')
                     break
-            elif not(lowerbound is None):
-                if (new_value <= lowerbound):
+            elif not(lowerbound is None):   # if no upper bound was given
+                if (new_value <= lowerbound):   # check if the input value is too low
                     print('Error: You entered a value that is lower than or equal to ', lowerbound)
                     break
-            elif not(upperbound is None):
-                if (new_value <= lowerbound) or (new_value >= upperbound):
+            elif not(upperbound is None):   # if no lower bound was given, check if the value is too high
+                if (new_value >= upperbound):   # check if the input value is too high
                     print('Error: You entered a value that is higher than or equal to ',upperbound)
                     break
             print('Is this input okay: ', new_value, ' (Enter y or n)')
-            good = input()
-            if good == 'y':
+            good = input()  # get input from the user
+            if good == 'y': # if the input was good
                 break
     return new_value
 
@@ -57,10 +55,10 @@ def change_others():
     print('Would you like to change anything other variables?')
     print('Enter y or n')
     while True:
-        user = input()
-        if user == 'y':
+        user = input()  # get input from the user
+        if user == 'y': # if the input was good
             return True
-        elif user == 'n':
+        elif user == 'n':   # if the input was bad
             return False
         else:
             print('You entered an incorrect command')
@@ -93,7 +91,7 @@ def initialize():
     print('\tFilename to read from: ', filename)
     print('\tInitial voltage of starting parent: ', init_voltage, '\n')
     print('Would you like to change any of these values?\nEnter "y" or "n"')
-    keyboard_input = input()        
+    keyboard_input = input()    # get input from the user
     if keyboard_input == 'y':    # if the key pressed was the enter key
         while True:
             print('To change the number of initial parents, enter "initial parents"')
@@ -102,58 +100,56 @@ def initialize():
             print('To change the number of children, enter "children"')
             print('To change the filenmae or initial voltage, enter "init setting"')
             print('To change nothing, enter "none"')
-            key_input = input()
-            if key_input == 'initial parents':
+            key_input = input() # get input from the user
+            if key_input == 'initial parents':  # determine what the user input
                 print('You are changing the number of initial parents')
-                num_init_parents = change_value('int', 0, num_init_children+1)
-                if not change_others():
+                num_init_parents = change_value('int', 0, num_init_children+1)  # change the variable's value
+                if not change_others(): # determine if the user wants to change any other parameters
                     break
-            elif key_input == 'initial children':
+            elif key_input == 'initial children':   # determine what the user input
                 print('You are changing the number of initial children')
-                num_init_children = change_value('int', num_init_parents-1)
-                if not change_others():
+                num_init_children = change_value('int', num_init_parents-1) # change the variable's value
+                if not change_others(): # determine if the user wants to change any other parameters
                     break
-            elif key_input == 'parents':
+            elif key_input == 'parents':    # determine what the user input
                 print('You are changing the number of parents')
-                num_parents = change_value('int', 0, num_children+1)
-                if not change_others():
+                num_parents = change_value('int', 0, num_children+1)    # change the variable's value
+                if not change_others(): # determine if the user wants to change any other parameters
                     break
-            elif key_input == 'children':
+            elif key_input == 'children':   # determine what the user input
                 print('You are changing the number of children')
-                num_children = change_value('int', num_parents-1)
-                if not change_others():
+                num_children = change_value('int', num_parents-1)   # change the variable's value
+                if not change_others(): # determine if the user wants to change any other parameters
                     break
-            elif key_input == 'init setting':
+            elif key_input == 'init setting':   # determine what the user input
                 print('You are changing the initialization setting')
                 print('Would you like to change the filename or the initial voltage?')
                 print('Enter "filename", "initial voltage", or "none"')
-                keyboard_press = input()
-                if keyboard_press == 'filename':
+                keyboard_press = input()    # get input from the user
+                if keyboard_press == 'filename':    # determine what the user input
                     print('You are changing the filename')
                     print('When entering filenames, enter the name without the .adf extension')
                     print('Note: The file must be in the same directory as this program for the program to be able to read it')
-                    filename = change_value('string')
-                    init_voltage = None
-                    if not change_others():
+                    filename = change_value('string')   # change the variable's value
+                    init_voltage = None # set init_voltage to none because only one initialization setting can be defined at one time
+                    if not change_others(): # determine if the user wants to change any other parameters
                         break
-                if keyboard_press == 'initial voltage':
+                elif keyboard_press == 'initial voltage': # determine what the user input
                     print('You are changing the initial voltage')
-                    init_voltage = change_value('float', 0, 60)
-                    filename = None
-                    if not change_others():
+                    init_voltage = change_value('float', 0, 60) # change the variable's value
+                    filename = None # set filename to none because only one initialization setting can be defined at one time
+                    if not change_others(): # determine if the user wants to change any other parameters
                         break
-                if keyboard_press == 'none':
-                    if not change_others():
+                elif keyboard_press == 'none':    # determine what the user input
+                    if not change_others(): # determine if the user wants to change any other parameters
                         break
                 else:
                     print('You did not enter a correct input')
-            elif key_input == 'none':
+            elif key_input == 'none':   # determine what the user input
                 print('You are not changing anything')
                 break
             else:
                 print('You did not enter a valid command')
-    if keyboard_input == 'n':
-        print('\n')
     return num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage
 
 if __name__ == "__main__":

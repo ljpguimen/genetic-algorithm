@@ -2,6 +2,7 @@
 
 import pyvisa
 
+# // comment
 # // connect to mirror
 
 PCI_BOARDS = ['PXI4::5::INSTR', 'PXI4::4::INSTR']
