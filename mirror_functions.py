@@ -85,12 +85,12 @@ def write_to_board(address, voltages):
     deformable_mirror = pci_card.open_resource(PCI_BOARDS[address])
     lib = pci_card.visalib
     session = lib.open_default_resource_manager()
-    #FF not defined
-    '''lib.map_address(session, 'PXI BAR0', 0, FF)
+    dm_session = lib.open(session, PCI_BOARDS[address])
+    lib.map_address(dm_session, 'PXI BAR0', 0, 255)
     for i in range(voltages):
-        lib.poke_8(session, addresses[i], voltages[i])
+        lib.poke_8(dm_session, addresses[i], voltages[i])
     lib.close(session)
-    return'''
+    return
 
 def write_to_mirror(genes, dm_actuators):
     within_range = True # the genes are in range unless proven to be out of range

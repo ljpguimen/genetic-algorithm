@@ -46,18 +46,15 @@ def genetic_algorithm():
             keyboard_input = msvcrt.getwche()   # determine what key was pressed
             if keyboard_input == '\r':  # if the enter key was pressed
                 break   # get out of the while loop
-            if keyboard_input == 'm':   # if the m key was pressed
+            elif keyboard_input == 'm':   # if the m key was pressed
                 print('\nThis is the current mutation percentage: ', mutation_percentage)
                 mutation_percentage = initialization_f.change_value('float', 0, 100)    # change the mutation percentage to what the user wants
-                break   # get out of the while loop
-            if keyboard_input == 'c':   # if the c key was pressed
+            elif keyboard_input == 'c':   # if the c key was pressed
                 print('\nThis is the current number of children: ', num_children)   
                 mutation_percentage = initialization_f.change_value('int', num_parents-1)   # change the number of children to what the user wants
-                break   # get out of the while loop
-            if keyboard_input == 'p':   # if the p key was pressed
+            elif keyboard_input == 'p':   # if the p key was pressed
                 print('\nThis is the current number of parents: ', num_parents)
                 mutation_percentage = initialization_f.change_value('float', 0, num_children+1) # change the number of parents to what the user wants
-                break   # get out of the while loop
 
         parents = people.parent_group(num_parents,num_genes, None, None, best_child_indices, children, best_parent_indices, parents)   # create parents from the best performing children
         children = people.child_group(num_children, parents, dm_actuators)       # create children from the just created parents
