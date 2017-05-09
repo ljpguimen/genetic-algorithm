@@ -99,4 +99,4 @@ def genetic_algorithm():
 # Otherwise, do not run the main function and so it only has the import functionality
 if __name__ == "__main__":
     #genetic_algorithm()
-    mirror_f.write_to_board(0, 1)
+    mirror_f.send_to_board(0, 1)

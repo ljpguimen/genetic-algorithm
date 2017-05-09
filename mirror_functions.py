@@ -1,11 +1,11 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
-import pyvisa
+import visa
 
 # // comment
 # // connect to mirror
 
-PCI_BOARDS = ['PXI4::5::INSTR', 'PXI4::4::INSTR']
+PCI_BOARDS = ["PXI4::5::INSTR", "PXI4::4::INSTR"]
 # // fill these in 1-19 and then 20-37
 ACTUATOR_ADDRESSES = [[],[]]
 FIRST_ADDRESSES = 0
@@ -80,14 +80,15 @@ def array_conversion(genes):    # // write this function
     return genes
 
 def send_to_board(address, voltages):
-    pci_card = pyvisa.ResourceManager()
-    print(pci_card)
-    print(pci_card.list_resources())
-    deformable_mirror = pci_card.open_resource(PCI_BOARDS[address])
-    lib = pci_card.visalib
+    rm = visa.ResourceManager()
+    print(rm.list_resources())
+    deformable_mirror = rm.open_resource(PCI_BOARDS[address])
+    lib = rm.visalib
     session = lib.open_default_resource_manager()
-    dm_session = lib.open(session, PCI_BOARDS[address])
-    lib.map_address(dm_session, pyvisa.constants.VI_A16_SPACE, 0, 0x255, pyvisa.constants.VI_FALSE, pyvisa.constants.VI_NULL)
+    dm_session = lib.open(session[0], PCI_BOARDS[address])
+    print(type(dm_session[0]))
+    print(dm_session[0])
+    lib.map_address(dm_session[0], visa.constants.VI_A16_SPACE, 0, 255)
     for i in range(voltages):
         lib.poke_8(dm_session, addresses[i], voltages[i])
     lib.close(session)
