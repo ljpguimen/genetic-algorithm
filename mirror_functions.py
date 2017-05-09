@@ -6,6 +6,7 @@ import pyvisa
 # // connect to mirror
 
 PCI_BOARDS = ['PXI4::5::INSTR', 'PXI4::4::INSTR']
+# // fill these in 1-19 and then 20-37
 ACTUATOR_ADDRESSES = [[],[]]
 FIRST_ADDRESSES = 0
 SECOND_ADDRESSES = 1
@@ -78,7 +79,7 @@ print(dm_actuator_neighbor == dm_neighbors)
 def array_conversion(genes):    # // write this function
     return genes
 
-def write_to_board(address, voltages):
+def send_to_board(address, voltages):
     pci_card = pyvisa.ResourceManager()
     print(pci_card)
     print(pci_card.list_resources())
@@ -86,7 +87,7 @@ def write_to_board(address, voltages):
     lib = pci_card.visalib
     session = lib.open_default_resource_manager()
     dm_session = lib.open(session, PCI_BOARDS[address])
-    lib.map_address(dm_session, 'PXI BAR0', 0, 255)
+    lib.map_address(dm_session, pyvisa.constants.VI_A16_SPACE, 0, 0x255, pyvisa.constants.VI_FALSE, pyvisa.constants.VI_NULL)
     for i in range(voltages):
         lib.poke_8(dm_session, addresses[i], voltages[i])
     lib.close(session)
@@ -100,12 +101,12 @@ def write_to_mirror(genes, dm_actuators):
         if dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # //
-            write_to_board(FIRST_ADDRESSES, genes[:18])
-            write_to_board(SECOND_ADDRESSES, genes[18:])
+            send_to_board(FIRST_ADDRESSES, genes[:18])
+            send_to_board(SECOND_ADDRESSES, genes[18:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
-        print('Error: Genes not in range')
+        print('Error: Genes not in range (within the write_to_mirror function)')
     return
 
 if __name__ == "__main__":
