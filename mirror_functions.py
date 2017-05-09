@@ -1,6 +1,6 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
-import visa
+import pyvisa
 
 # // comment
 # // connect to mirror
@@ -80,15 +80,14 @@ def array_conversion(genes):    # // write this function
     return genes
 
 def send_to_board(address, voltages):
-    rm = visa.ResourceManager()
+    rm = pyvisa.ResourceManager()
     print(rm.list_resources())
     deformable_mirror = rm.open_resource(PCI_BOARDS[address])
     lib = rm.visalib
     session = lib.open_default_resource_manager()
     dm_session = lib.open(session[0], PCI_BOARDS[address])
-    print(type(dm_session[0]))
-    print(dm_session[0])
-    lib.map_address(dm_session[0], visa.constants.VI_A16_SPACE, 0, 255)
+    print(pyvisa.constants.VI_PXI_BAR0_SPACE)
+    lib.map_address(dm_session[0], pyvisa.constants.VI_PXI_BAR0_SPACE, 0, 0xFF)
     for i in range(voltages):
         lib.poke_8(dm_session, addresses[i], voltages[i])
     lib.close(session)
