@@ -73,9 +73,6 @@ class parent_group(object):
         else:   
             print("Error: parents weren't given enough initialization information")   # the correct output arguments weren't given
 
-    def read_voltages_from_file(self, filename):
-        return #//idk how to do this yet
-
     def test_parents(self, figure_of_merit_matrix, dm_actuators):
         """determine the figure of merit of each parent""" 
         for i in range(self.num_parents):   # test each parent

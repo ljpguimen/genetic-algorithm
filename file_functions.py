@@ -5,7 +5,7 @@ import numpy as np
 # // how to get the date in python
 
 def write_to_adf(array, filename):
-    # ask for user input as to what they want the file to be named
+    """Enter the //37 genes to write in the file as well as the filename without the .adf extenstion"""
     with open(filename + '.adf', 'w') as fileout:   # open the file to write values to
         tsvwriter = csv.writer(fileout, delimiter='\t') # write to the given file with values separated by tabs
         tsvwriter.writerow(['@ASCII_DATA_FILE'])    # start of the header
@@ -20,6 +20,9 @@ def write_to_adf(array, filename):
         tsvwriter.writerow([39, '4.980469E-3'])     # //this is the figure of merit
 
 def read_adf(filename, num_genes):
+    """Enter the filename as a string without the .adf extension at the end.
+Also, it can only read the file if it is in the same folder as the program"""
+
     new_gene_array = np.empty(0, 'float')   # initialize array to hold the read genes
     with open(filename + '.adf', 'r') as filein:    # open the file to be read from
         tsvreader = csv.reader(filein, delimiter = '\t')    # make the values tab separated

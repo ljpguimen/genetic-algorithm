@@ -99,4 +99,6 @@ def genetic_algorithm():
 # Otherwise, do not run the main function and so it only has the import functionality
 if __name__ == "__main__":
     #genetic_algorithm()
-    mirror_f.send_to_board(0, 1)
+    dm_actuators = mirror_f.acuator_array() # initialize the class to determine if actuator voltages break the mirror or not
+    genes = file_f.read_adf('30',37)
+    mirror_f.write_to_mirror(genes, dm_actuators)
