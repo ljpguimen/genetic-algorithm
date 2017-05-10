@@ -3,6 +3,7 @@ import numpy as np
 
 # // enter the figure of merit as well
 # // how to get the date in python
+# // change reading from appending to initialized vector
 
 def write_to_adf(array, filename):
     """Enter the //37 genes to write in the file as well as the filename without the .adf extenstion"""
@@ -23,13 +24,13 @@ def read_adf(filename, num_genes):
     """Enter the filename as a string without the .adf extension at the end.
 Also, it can only read the file if it is in the same folder as the program"""
 
-    new_gene_array = np.empty(0, 'float')   # initialize array to hold the read genes
+    new_gene_array = np.empty(0, 'uint8')   # initialize array to hold the read genes
     with open(filename + '.adf', 'r') as filein:    # open the file to be read from
         tsvreader = csv.reader(filein, delimiter = '\t')    # make the values tab separated
         for row in tsvreader:   # for each row in the file
             if len(row) == 2:   # if the number of values in the row is 2
-                if int(row[0]) <= num_genes:    # the first number is the index, only read in num_genes genes
-                    new_gene_array = np.append(new_gene_array, row[1])  # read in the second value as the gene voltage
+                if int(float(row[0])) <= num_genes:    # the first number is the index, only read in num_genes genes
+                    new_gene_array = np.append(new_gene_array, int(float(row[1])))  # read in the second value as the gene voltage
     return new_gene_array
 
 

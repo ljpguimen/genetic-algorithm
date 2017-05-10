@@ -1,6 +1,7 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
 import pyvisa
+import numpy as np
 
 # // comment
 # // comment under each function
@@ -82,9 +83,11 @@ def send_to_board(board_num, voltages):
     session = lib.open_default_resource_manager() # open hardware level manager of devices attached to the computer
     dm_session = lib.open(session[0], PCI_BOARDS[board_num]) # open access to the correct pci card
     lib.map_address(dm_session[0], pyvisa.constants.VI_PXI_BAR0_SPACE, 0, 0xFF) # connect the pci memory addresses to the program's memory addresses
-    for i in range(voltages):   # for each of the 37 voltages
-        lib.poke_8(dm_session, ACTUATOR_ADDRESSES[board_num][i], voltages[i])   # write the voltage into the memory accessed by the pci card
-    lib.close(session)  # close the pci card
+    print(type(voltages[0]), 'voltages size')
+    for i in range(voltages.size):   # for each of the 37 voltages
+        lib.poke_8(dm_session[0], ACTUATOR_ADDRESSES[board_num][i], int(voltages[i]))   # write the voltage into the memory accessed by the pci card
+    # //call viUnmapAddress?
+    lib.close(session[0])  # close the pci card
     return
 
 def write_to_mirror(genes, dm_actuators):
@@ -92,11 +95,12 @@ def write_to_mirror(genes, dm_actuators):
     for i in range(genes.size):  # for each gene
         within_range = True and (genes[i] >= 0) and (genes[i] <= 250) # check that the voltages are between 0 and 250
     if within_range:    # if all of the genes are within the correct range
-        if dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
+        if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
-            voltage_array = array_conversion(genes) # //
-            send_to_board(FIRST_BOARD, genes[:18])
-            send_to_board(SECOND_BOARD, genes[18:])
+            voltage_array = array_conversion(genes) # // do this
+            print(genes.size,'genes size')
+            send_to_board(FIRST_BOARD, genes[:19])
+            send_to_board(SECOND_BOARD, genes[20:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
