@@ -107,6 +107,30 @@ def send_to_board(board_num, voltages):
     return
 
 
+    # This is the code for testing whether python can run a test labview VI
+    """
+    import win32com.client  # Python ActiveX Client
+    input1 = 10
+    input2 = 20
+    labview_control1 = 'Input 1'
+    labview_control2 = 'Input 2'
+    labview_indicator = 'Sum'
+    LabVIEW = win32com.client.Dispatch("Labview.Application")
+    VI = LabVIEW.getvireference('C:\\python.vi')    # path the LabVIEW VI
+    VI._FlagAsMethod("Call")    # Flag "Call" as method
+    VI.setcontrolvalue(labview_control1, str(Input1))   # set first input
+    VI.setcontrolvalue(labview_control1, str(Input1))   # set first input
+    VI.Call()   # Run the VI
+    result = VI.getcontrolvalue(labview_indicator)
+    print(result)
+    return
+    """
+
+    # This is the code for running the LabView VI which communicates with the deformable mirror
+    """
+
+    """
+
     # This is the code for using pyVISA
     """
     rm = pyvisa.ResourceManager()   # instantiate an object to manage all devices connected to the computer
