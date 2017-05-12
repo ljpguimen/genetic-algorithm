@@ -1,12 +1,13 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
-import pyvisa
-from PyDAQmx import *
+import pyvisa   # Use this when using the pyvisa code in send_to_board
+from PyDAQmx import *   # Use this when using the pyDAQmx code in send_to_board
+import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np
 
 # // comment
 # // comment under each function
-PCI_BOARDS = ["PXI4::5::INSTR", "PXI4::4::INSTR"]
+PCI_BOARDS = [['PXI4::5::INSTR', 1919942658], ['PXI4::4::INSTR', 1526726657]]
 # the top row values are the addresses of actuators 0-18 and the bottom values are the addresses of the actuators 19-36
 ACTUATOR_ADDRESSES = [[0x34, 0x54, 0x28, 0x38, 0x08, 0x04, 0x24, 0x50, 0x58, 0x2C, 0x30, 0x1C, 0x10, 0x14, 0x0C, 0x00, 0x3C, 0x20, 0x5C],
                       [0x24, 0x5C, 0x58, 0x54, 0x20, 0x10, 0x08, 0x1C, 0x14, 0x0C, 0x04, 0x00, 0x3C, 0x38, 0x34, 0x30, 0x2C, 0x28]]
@@ -77,17 +78,18 @@ def array_conversion(genes):    # // write this function
     return genes
 
 def send_to_board(board_num, voltages):
+    # Code for using pyDAQmx. This did not work because the driver for the PCI cards is not recognizable by NI-DAQmx
+    """
     # Declaration of variable passed by reference
     taskHandle = TaskHandle()
     read = int32()
-    data = np.zeros((1000,), dtype=np.float64)
+    data = str() #np.zeros((1000,), dtype=np.str)
+    bufferSize = 0
 
     try:
         # DAQmx Configure Code
         DAQmxCreateTask("",byref(taskHandle))
-        DAQmxGetDevAOPhysicalChans(PCI_BOARDS[board_num], byref(data), bufferSize)
-        print(data)
-        DAQmxCreateAIVoltageChan(taskHandle,PCI_BOARDS[board_num],"",DAQmx_Val_Cfg_Default,-10.0,10.0,DAQmx_Val_Volts,None)
+        DAQmxCreateAIVoltageChan(taskHandle,'Dev65',"",DAQmx_Val_Cfg_Default,-10.0,10.0,DAQmx_Val_Volts,None)
         DAQmxCfgSampClkTiming(taskHandle,"",10000.0,DAQmx_Val_Rising,DAQmx_Val_FiniteSamps,1000)
 
         # DAQmx Start Code
@@ -96,50 +98,46 @@ def send_to_board(board_num, voltages):
         # DAQmx Read Code
         DAQmxReadAnalogF64(taskHandle,1000,10.0,DAQmx_Val_GroupByChannel,data,1000,byref(read),None)
 
-        print( "Acquired %d points",%read.value)
+        print( "Acquired %d points",read.value)
     except DAQError as err:
-        print ("DAQmx Error: %s", %err)
+        print ("DAQmx Error: %s", err)
     finally:
         if taskHandle:
             # DAQmx Stop Code
             DAQmxStopTask(taskHandle)
             DAQmxClearTask(taskHandle)
     return
-
-
-    # This is the code for testing whether python can run a test labview VI
-    """
-    import win32com.client  # Python ActiveX Client
-    input1 = 10
-    input2 = 20
-    LabVIEW = win32com.client.Dispatch("Labview.Application")
-    VI = LabVIEW.getvireference('C:\\python.vi')    # path the LabVIEW VI
-    VI._FlagAsMethod("Call")    # Flag "Call" as method
-    VI.setcontrolvalue('board', PCI_BOARDS[board_num])   # set first input
-    VI.setcontrolvalue('error in', str(Input1))   # set first input
-    VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
-    VI.setcontrolvalue('voltages to write', voltages)   # set first input
-    VI.Call()   # Run the VI
-    result = VI.getcontrolvalue(labview_indicator)
-    print(result)
-    return
     """
 
     # This is the code for running the LabView VI which communicates with the deformable mirror
-    """
-    import win32com.client  # Python ActiveX Client
-    input1 = 10
-    input2 = 20
-    labview_control1 = 'Input 1'
-    labview_control2 = 'Input 2'
-    labview_indicator = 'Sum'
     LabVIEW = win32com.client.Dispatch("Labview.Application")
-    VI = LabVIEW.getvireference('C:\\python.vi')    # path the LabVIEW VI
+    VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Send Volt to board x64.vi')    # path the LabVIEW VI
     VI._FlagAsMethod("Call")    # Flag "Call" as method
-    VI.setcontrolvalue(labview_control1, str(Input1))   # set first input
-    VI.setcontrolvalue(labview_control1, str(Input1))   # set first input
+    print((tuple(PCI_BOARDS[board_num])))
+    VI.setcontrolvalue('board', tuple(PCI_BOARDS[board_num]))   # set first input
+    VI.setcontrolvalue('error in (no error)', 0)   # set first input
+    VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
+    VI.setcontrolvalue('values to write', voltages.tolist())   # set first input
+    result = VI.getcontrolvalue('board')
+    print(result)
     VI.Call()   # Run the VI
-    result = VI.getcontrolvalue(labview_indicator)
+    result = VI.getcontrolvalue('error out')
+    print(result)
+    return
+    
+
+    # This is the code for testing whether python can run a test labview VI
+    # This worked!!! YAY
+    """
+    Input1 = 10
+    Input2 = 20
+    LabVIEW = win32com.client.Dispatch("Labview.Application")
+    VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\Algorithm_test_VI\python.vi')    # path the LabVIEW VI
+    VI._FlagAsMethod("Call")    # Flag "Call" as method
+    VI.setcontrolvalue('Input 1', str(Input1))   # set first input
+    VI.setcontrolvalue('Input 2', str(Input2))   # set first input
+    VI.Call()   # Run the VI
+    result = VI.getcontrolvalue('Sum')
     print(result)
     return
     """
@@ -168,7 +166,6 @@ def write_to_mirror(genes, dm_actuators):
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # // do this
-            print(genes.size,'genes size')
             send_to_board(FIRST_BOARD, genes[:19])
             send_to_board(SECOND_BOARD, genes[20:])
         else:
