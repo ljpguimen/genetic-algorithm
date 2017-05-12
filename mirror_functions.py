@@ -112,6 +112,24 @@ def send_to_board(board_num, voltages):
     import win32com.client  # Python ActiveX Client
     input1 = 10
     input2 = 20
+    LabVIEW = win32com.client.Dispatch("Labview.Application")
+    VI = LabVIEW.getvireference('C:\\python.vi')    # path the LabVIEW VI
+    VI._FlagAsMethod("Call")    # Flag "Call" as method
+    VI.setcontrolvalue('board', PCI_BOARDS[board_num])   # set first input
+    VI.setcontrolvalue('error in', str(Input1))   # set first input
+    VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
+    VI.setcontrolvalue('voltages to write', voltages)   # set first input
+    VI.Call()   # Run the VI
+    result = VI.getcontrolvalue(labview_indicator)
+    print(result)
+    return
+    """
+
+    # This is the code for running the LabView VI which communicates with the deformable mirror
+    """
+    import win32com.client  # Python ActiveX Client
+    input1 = 10
+    input2 = 20
     labview_control1 = 'Input 1'
     labview_control2 = 'Input 2'
     labview_indicator = 'Sum'
@@ -124,11 +142,6 @@ def send_to_board(board_num, voltages):
     result = VI.getcontrolvalue(labview_indicator)
     print(result)
     return
-    """
-
-    # This is the code for running the LabView VI which communicates with the deformable mirror
-    """
-
     """
 
     # This is the code for using pyVISA
