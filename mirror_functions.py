@@ -1,6 +1,7 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
 import pyvisa
+from PyDAQmx import *
 import numpy as np
 
 # // comment
@@ -76,6 +77,38 @@ def array_conversion(genes):    # // write this function
     return genes
 
 def send_to_board(board_num, voltages):
+    # Declaration of variable passed by reference
+    taskHandle = TaskHandle()
+    read = int32()
+    data = np.zeros((1000,), dtype=np.float64)
+
+    try:
+        # DAQmx Configure Code
+        DAQmxCreateTask("",byref(taskHandle))
+        DAQmxGetDevAOPhysicalChans(PCI_BOARDS[board_num], byref(data), bufferSize)
+        print(data)
+        DAQmxCreateAIVoltageChan(taskHandle,PCI_BOARDS[board_num],"",DAQmx_Val_Cfg_Default,-10.0,10.0,DAQmx_Val_Volts,None)
+        DAQmxCfgSampClkTiming(taskHandle,"",10000.0,DAQmx_Val_Rising,DAQmx_Val_FiniteSamps,1000)
+
+        # DAQmx Start Code
+        DAQmxStartTask(taskHandle)
+
+        # DAQmx Read Code
+        DAQmxReadAnalogF64(taskHandle,1000,10.0,DAQmx_Val_GroupByChannel,data,1000,byref(read),None)
+
+        print( "Acquired %d points",%read.value)
+    except DAQError as err:
+        print ("DAQmx Error: %s", %err)
+    finally:
+        if taskHandle:
+            # DAQmx Stop Code
+            DAQmxStopTask(taskHandle)
+            DAQmxClearTask(taskHandle)
+    return
+
+
+    # This is the code for using pyVISA
+    """
     rm = pyvisa.ResourceManager()   # instantiate an object to manage all devices connected to the computer
     #print(rm.list_resources())  # show which things are connected to the computer
     deformable_mirror = rm.open_resource(PCI_BOARDS[board_num])
@@ -88,7 +121,7 @@ def send_to_board(board_num, voltages):
         lib.poke_8(dm_session[0], ACTUATOR_ADDRESSES[board_num][i], int(voltages[i]))   # write the voltage into the memory accessed by the pci card
     # //call viUnmapAddress?
     lib.close(session[0])  # close the pci card
-    return
+    return """
 
 def write_to_mirror(genes, dm_actuators):
     within_range = True # the genes are in range unless proven to be out of range
