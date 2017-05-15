@@ -7,7 +7,7 @@ import numpy as np
 
 # // comment
 # // comment under each function
-PCI_BOARDS = [['PXI4::5::INSTR', 1919942658], ['PXI4::4::INSTR', 1526726657]]
+PCI_BOARDS = [['PXI4::5::INSTR'], ['PXI4::4::INSTR']]
 # the top row values are the addresses of actuators 0-18 and the bottom values are the addresses of the actuators 19-36
 ACTUATOR_ADDRESSES = [[0x34, 0x54, 0x28, 0x38, 0x08, 0x04, 0x24, 0x50, 0x58, 0x2C, 0x30, 0x1C, 0x10, 0x14, 0x0C, 0x00, 0x3C, 0x20, 0x5C],
                       [0x24, 0x5C, 0x58, 0x54, 0x20, 0x10, 0x08, 0x1C, 0x14, 0x0C, 0x04, 0x00, 0x3C, 0x38, 0x34, 0x30, 0x2C, 0x28]]
@@ -110,21 +110,26 @@ def send_to_board(board_num, voltages):
     """
 
     # This is the code for running the LabView VI which communicates with the deformable mirror
+    #volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
     LabVIEW = win32com.client.Dispatch("Labview.Application")
-    VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Send Volt to board x64.vi')    # path the LabVIEW VI
-    VI._FlagAsMethod("Call")    # Flag "Call" as method
-    print((tuple(PCI_BOARDS[board_num])))
-    VI.setcontrolvalue('board', tuple(PCI_BOARDS[board_num]))   # set first input
-    VI.setcontrolvalue('error in (no error)', 0)   # set first input
-    VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
-    VI.setcontrolvalue('values to write', voltages.tolist())   # set first input
-    result = VI.getcontrolvalue('board')
+    pciVI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_{0}.vi'.format(board_num))    # path the LabVIEW VI
+    pciVI._FlagAsMethod("Call")    # Flag "Call" as method
+    pciVI.setcontrolvalue('error in (no error)', 0)   # set first input
+    pciVI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
+    pciVI.setcontrolvalue('values to write', voltages.tolist())   # set first input
+    result = pciVI.getcontrolvalue('error in (no error)')
     print(result)
-    VI.Call()   # Run the VI
-    result = VI.getcontrolvalue('error out')
+    result = pciVI.getcontrolvalue('board')
+    print(result)
+    pciVI.Call()   # Run the VI
+    result = pciVI.getcontrolvalue('board')
+    print(result)
+    #result = pciVI.getcontrolvalue('Boolean')
+    #print(result)
+    result = pciVI.getcontrolvalue('error out')
     print(result)
     return
-    
+    #next step is to use the dll that was made because the device doesn't get initialized for some odd reason. So I should take the variables used as inputs for the current labview vi and set it up so that these are the inputs for the function out of the dll which is Volt_to_board_0/1. I should also look into not having to put the dll file in the genetic algorithm folder (although it really wouldn't hurt so that everything was in the same place).
 
     # This is the code for testing whether python can run a test labview VI
     # This worked!!! YAY
@@ -133,11 +138,11 @@ def send_to_board(board_num, voltages):
     Input2 = 20
     LabVIEW = win32com.client.Dispatch("Labview.Application")
     VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\Algorithm_test_VI\python.vi')    # path the LabVIEW VI
-    VI._FlagAsMethod("Call")    # Flag "Call" as method
-    VI.setcontrolvalue('Input 1', str(Input1))   # set first input
-    VI.setcontrolvalue('Input 2', str(Input2))   # set first input
-    VI.Call()   # Run the VI
-    result = VI.getcontrolvalue('Sum')
+    pciVI._FlagAsMethod("Call")    # Flag "Call" as method
+    pciVI.setcontrolvalue('Input 1', str(Input1))   # set first input
+    pciVI.setcontrolvalue('Input 2', str(Input2))   # set first input
+    pciVI.Call()   # Run the VI
+    result = pciVI.getcontrolvalue('Sum')
     print(result)
     return
     """
@@ -166,7 +171,7 @@ def write_to_mirror(genes, dm_actuators):
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # // do this
-            send_to_board(FIRST_BOARD, genes[:19])
+            #send_to_board(FIRST_BOARD, genes[:19])
             send_to_board(SECOND_BOARD, genes[20:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
