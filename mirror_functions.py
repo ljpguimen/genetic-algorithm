@@ -1,7 +1,8 @@
 """These functions check whether the genes break the mirror and write genes to the mirror"""
 
-import pyvisa   # Use this when using the pyvisa code in send_to_board
-from PyDAQmx import *   # Use this when using the pyDAQmx code in send_to_board
+#import pyvisa   # Use this when using the pyvisa code in send_to_board
+#from PyDAQmx import *   # Use this when using the pyDAQmx code in send_to_board
+from ctypes import *
 import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np
 
@@ -77,7 +78,7 @@ class acuator_array(object):
 def array_conversion(genes):    # // write this function
     return genes
 
-def send_to_board(board_num, voltages):
+def send_to_board(voltages0, voltages1):
     # Code for using pyDAQmx. This did not work because the driver for the PCI cards is not recognizable by NI-DAQmx
     """
     # Declaration of variable passed by reference
@@ -110,26 +111,46 @@ def send_to_board(board_num, voltages):
     """
 
     # This is the code for running the LabView VI which communicates with the deformable mirror
-    #volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
+    """volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
+    error_in = 0
+    pci_card = 0 # do i need this
+    error_out = volt_to_board.Volt_to_board_0(error_in, ACTUATOR_ADDRESSES[0], pci_card, voltages0.tolist())
+    print(error_out)
+    error_out = volt_to_board.Volt_to_board_1(error_in, ACTUATOR_ADDRESSES[1], pci_card, voltages1.tolist())
+    print(error_out)
+    """
+
     LabVIEW = win32com.client.Dispatch("Labview.Application")
-    pciVI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_{0}.vi'.format(board_num))    # path the LabVIEW VI
-    pciVI._FlagAsMethod("Call")    # Flag "Call" as method
-    pciVI.setcontrolvalue('error in (no error)', 0)   # set first input
-    pciVI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
-    pciVI.setcontrolvalue('values to write', voltages.tolist())   # set first input
-    result = pciVI.getcontrolvalue('error in (no error)')
+    pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_0.vi')    # path the LabVIEW VI
+    pci0VI._FlagAsMethod("Call")    # Flag "Call" as method
+    pci0VI.setcontrolvalue('error in (no error)', 0)   # set first input
+    pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
+    pci0VI.setcontrolvalue('values to write', voltages0.tolist())   # set first input
+    result = pci0VI.getcontrolvalue('error in (no error)')
     print(result)
-    result = pciVI.getcontrolvalue('board')
+    result = pci0VI.getcontrolvalue('board')
     print(result)
-    pciVI.Call()   # Run the VI
-    result = pciVI.getcontrolvalue('board')
+    pci0VI.Call()   # Run the VI
+    result = pci0VI.getcontrolvalue('board')
     print(result)
-    #result = pciVI.getcontrolvalue('Boolean')
-    #print(result)
-    result = pciVI.getcontrolvalue('error out')
+    result = pci0VI.getcontrolvalue('error out')
+    print(result)
+
+    pci1VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_1.vi')    # path the LabVIEW VI
+    pci1VI._FlagAsMethod("Call")    # Flag "Call" as method
+    pci1VI.setcontrolvalue('error in (no error)', 0)   # set first input
+    pci1VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[1])   # set first input
+    pci1VI.setcontrolvalue('values to write', voltages1.tolist())   # set first input
+    result = pci1VI.getcontrolvalue('error in (no error)')
+    print(result)
+    result = pci1VI.getcontrolvalue('board')
+    print(result)
+    pci1VI.Call()   # Run the VI
+    result = pci1VI.getcontrolvalue('board')
+    print(result)
+    result = pci1VI.getcontrolvalue('error out')
     print(result)
     return
-    #next step is to use the dll that was made because the device doesn't get initialized for some odd reason. So I should take the variables used as inputs for the current labview vi and set it up so that these are the inputs for the function out of the dll which is Volt_to_board_0/1. I should also look into not having to put the dll file in the genetic algorithm folder (although it really wouldn't hurt so that everything was in the same place).
 
     # This is the code for testing whether python can run a test labview VI
     # This worked!!! YAY
@@ -171,8 +192,7 @@ def write_to_mirror(genes, dm_actuators):
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # // do this
-            #send_to_board(FIRST_BOARD, genes[:19])
-            send_to_board(SECOND_BOARD, genes[20:])
+            send_to_board(genes[:19], genes[20:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
