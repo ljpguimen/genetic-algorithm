@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+import time
 
 # // enter the figure of merit as well
 # // how to get the date in python
@@ -12,7 +13,7 @@ def write_to_adf(array, filename):
         tsvwriter.writerow(['@ASCII_DATA_FILE'])    # start of the header
         tsvwriter.writerow(['NCurves=1'])   # number of genes which are output
         tsvwriter.writerow(['NPoints=39'])  # number of genes
-        tsvwriter.writerow(['Subtitle='])   # //insert date here
+        tsvwriter.writerow(['Subtitle={0} : {1}'.format(time.strftime("%m/%d/%y"), time.strftime("%I:%M %p"))])   # //insert date here
         tsvwriter.writerow(['Title=Save'])  # saving the file
         tsvwriter.writerow(['@END_HEADER']) # end the header
         for i in range(array.size):     # write each gene to the file
@@ -24,7 +25,7 @@ def read_adf(filename, num_genes):
     """Enter the filename as a string without the .adf extension at the end.
 Also, it can only read the file if it is in the same folder as the program"""
 
-    new_gene_array = np.empty(0, 'uint8')   # initialize array to hold the read genes
+    new_gene_array = np.empty(0, 'float')   # initialize array to hold the read genes
     with open(filename + '.adf', 'r') as filein:    # open the file to be read from
         tsvreader = csv.reader(filein, delimiter = '\t')    # make the values tab separated
         for row in tsvreader:   # for each row in the file

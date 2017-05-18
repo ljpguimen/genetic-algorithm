@@ -79,78 +79,47 @@ def array_conversion(genes):    # // write this function
     return genes
 
 def send_to_board(voltages0, voltages1):
-    # Code for using pyDAQmx. This did not work because the driver for the PCI cards is not recognizable by NI-DAQmx
+    
+    #There are 3 different sets of code to write to the board: calling functions in a LabVIEW dll, calling the LabVIEW VIs themselves, and using pyVISA 
+    # This utilizes the dll created from custom made VIs which communicate directly to each pci card
     """
-    # Declaration of variable passed by reference
-    taskHandle = TaskHandle()
-    read = int32()
-    data = str() #np.zeros((1000,), dtype=np.str)
-    bufferSize = 0
-
-    try:
-        # DAQmx Configure Code
-        DAQmxCreateTask("",byref(taskHandle))
-        DAQmxCreateAIVoltageChan(taskHandle,'Dev65',"",DAQmx_Val_Cfg_Default,-10.0,10.0,DAQmx_Val_Volts,None)
-        DAQmxCfgSampClkTiming(taskHandle,"",10000.0,DAQmx_Val_Rising,DAQmx_Val_FiniteSamps,1000)
-
-        # DAQmx Start Code
-        DAQmxStartTask(taskHandle)
-
-        # DAQmx Read Code
-        DAQmxReadAnalogF64(taskHandle,1000,10.0,DAQmx_Val_GroupByChannel,data,1000,byref(read),None)
-
-        print( "Acquired %d points",read.value)
-    except DAQError as err:
-        print ("DAQmx Error: %s", err)
-    finally:
-        if taskHandle:
-            # DAQmx Stop Code
-            DAQmxStopTask(taskHandle)
-            DAQmxClearTask(taskHandle)
+    volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
+    error_in = 0
+    error_out = 0
+    c_address0 = (c_int * len(ACTUATOR_ADDRESSES[0]))(*ACTUATOR_ADDRESSES[0])
+    c_address1 = (c_int * len(ACTUATOR_ADDRESSES[1]))(*ACTUATOR_ADDRESSES[1])
+    c_voltage0 = (c_float * len(voltages0.tolist()))(*voltages0.tolist())
+    c_voltage1 = (c_float * len(voltages1.tolist()))(*voltages1.tolist())
+    error_out = volt_to_board.Volt_to_board_0(c_address0, c_voltage0, error_in, error_out)
+    print(error_out)
+    error_out = volt_to_board.Volt_to_board_1(c_address1, c_voltage1, error_in, error_out)
+    print(error_out)
     return
     """
 
-    # This is the code for running the LabView VI which communicates with the deformable mirror
-    """volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
-    error_in = 0
-    pci_card = 0 # do i need this
-    error_out = volt_to_board.Volt_to_board_0(error_in, ACTUATOR_ADDRESSES[0], pci_card, voltages0.tolist())
-    print(error_out)
-    error_out = volt_to_board.Volt_to_board_1(error_in, ACTUATOR_ADDRESSES[1], pci_card, voltages1.tolist())
-    print(error_out)
-    """
-
+    # This is the code for running the LabView VI which communicates with the deformable mirror 
+    
     LabVIEW = win32com.client.Dispatch("Labview.Application")
     pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_0.vi')    # path the LabVIEW VI
     pci0VI._FlagAsMethod("Call")    # Flag "Call" as method
     pci0VI.setcontrolvalue('error in (no error)', 0)   # set first input
-    pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[board_num])   # set first input
+    pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[0])   # set first input
     pci0VI.setcontrolvalue('values to write', voltages0.tolist())   # set first input
-    result = pci0VI.getcontrolvalue('error in (no error)')
-    print(result)
-    result = pci0VI.getcontrolvalue('board')
-    print(result)
     pci0VI.Call()   # Run the VI
-    result = pci0VI.getcontrolvalue('board')
-    print(result)
     result = pci0VI.getcontrolvalue('error out')
     print(result)
 
+    
     pci1VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_1.vi')    # path the LabVIEW VI
     pci1VI._FlagAsMethod("Call")    # Flag "Call" as method
     pci1VI.setcontrolvalue('error in (no error)', 0)   # set first input
     pci1VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[1])   # set first input
     pci1VI.setcontrolvalue('values to write', voltages1.tolist())   # set first input
-    result = pci1VI.getcontrolvalue('error in (no error)')
-    print(result)
-    result = pci1VI.getcontrolvalue('board')
-    print(result)
     pci1VI.Call()   # Run the VI
-    result = pci1VI.getcontrolvalue('board')
-    print(result)
     result = pci1VI.getcontrolvalue('error out')
     print(result)
     return
+    
 
     # This is the code for testing whether python can run a test labview VI
     # This worked!!! YAY
@@ -168,7 +137,7 @@ def send_to_board(voltages0, voltages1):
     return
     """
 
-    # This is the code for using pyVISA
+    # This is the code for using pyVISA, but it doesn't support PXI devices at the moment (5/18/2017)
     """
     rm = pyvisa.ResourceManager()   # instantiate an object to manage all devices connected to the computer
     #print(rm.list_resources())  # show which things are connected to the computer
@@ -192,7 +161,7 @@ def write_to_mirror(genes, dm_actuators):
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # // do this
-            send_to_board(genes[:19], genes[20:])
+            send_to_board(genes[:19], genes[19:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:

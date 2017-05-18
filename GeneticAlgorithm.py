@@ -100,5 +100,5 @@ def genetic_algorithm():
 if __name__ == "__main__":
     #genetic_algorithm()
     dm_actuators = mirror_f.acuator_array() # initialize the class to determine if actuator voltages break the mirror or not
-    genes = file_f.read_adf('10',37)
+    genes = file_f.read_adf('0',37)
     mirror_f.write_to_mirror(genes, dm_actuators)
