@@ -33,6 +33,9 @@
     <Compile Include="mirror_functions.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="data_acquisition_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="original_LabView.py" />
     <Compile Include="people.py" />
     <Compile Include="plot_functions.py">
