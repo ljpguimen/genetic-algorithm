@@ -17,11 +17,16 @@ write_to_mirror() -- organizes genes and makes sure they will not break the mirr
 #import pyvisa   # Use this when using the pyvisa code in send_to_board
 import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np
+import msvcrt
+from ctypes import *
 
-PCI_BOARDS = [['PXI4::5::INSTR'], ['PXI4::4::INSTR']]   # These are the addresses given in NI-MAX or on Device manager
+# from people import parent
+
+# import mirror_functions as mirror_f
+# PCI_BOARDS = #[['ASRL4::INSTR'], ['ASRL4::INSTR']]#[['COM4'],['COM4']]#   # These are the addresses given in NI-MAX or on Device manager
 # the top row values are the addresses of actuators 0-18 and the bottom values are the addresses of the actuators 19-36
-ACTUATOR_ADDRESSES = [[0x34, 0x54, 0x28, 0x38, 0x08, 0x04, 0x24, 0x50, 0x58, 0x2C, 0x30, 0x1C, 0x10, 0x14, 0x0C, 0x00, 0x3C, 0x20, 0x5C],
-                      [0x24, 0x5C, 0x58, 0x54, 0x20, 0x10, 0x08, 0x1C, 0x14, 0x0C, 0x04, 0x00, 0x3C, 0x38, 0x34, 0x30, 0x2C, 0x28]]
+ACTUATOR_ADDRESSES = np.array([0x34, 0x54, 0x28, 0x38, 0x08, 0x04, 0x24, 0x50, 0x58, 0x2C, 0x30, 0x1C, 0x10, 0x14, 0x0C, 0x00, 0x3C, 0x20, 0x5C, 0x24, 
+                              0x5C, 0x58, 0x54, 0x20, 0x10, 0x08, 0x1C, 0x14, 0x0C, 0x04, 0x00, 0x3C, 0x38, 0x34, 0x30, 0x2C, 0x28])
 
 MAX_DIFF = 20 # maximum difference in voltage between neighboring actuators
 
@@ -149,7 +154,7 @@ def array_conversion(genes):
                     genes[2], genes[15], genes[4], genes[25], genes[30], genes[13], genes[12]]
     return mapped_genes
 
-def send_to_board(voltages0, voltages1):
+def send_to_board(voltages0):#, voltages1):
     """Write the voltage values to the PCI boards
 
     Parameters
@@ -164,48 +169,56 @@ def send_to_board(voltages0, voltages1):
     # This is the code for running the LabView VI which communicates with the deformable mirror 
     
     LabVIEW = win32com.client.Dispatch("Labview.Application")   # Start running Labview
-    pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_0.vi')    # path to the LabVIEW VI for the first board
-    pci0VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
-    pci0VI.setcontrolvalue('error in (no error)', 0)   # set error in
-    pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[0])   # set addresses
-    pci0VI.setcontrolvalue('values to write', voltages0.tolist())   # set values to write
-    pci0VI.Call()   # Run the VI
-    result = pci0VI.getcontrolvalue('error out')    # retrieve error out
-    if (result[1] != 0):   # check whether there was an error
-        print('There was an error writing to board 0 at PXI4::5::INSTR')
-        print('Error: ', result)
-        print('Press anything and enter to exit...')
-        input()
-        exit()
+    pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_mirror_2.vi')    # path to the LabVIEW VI for the first board
+    # pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Jinpu\2017\DMfarTable\DM 64bits with photodiode(0_1)\Send Volt to board x64.vi')    # path to the LabVIEW VI for the first board
 
-    pci1VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_1.vi')    # path to the LabVIEW VI for the second board
-    pci1VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
-    pci1VI.setcontrolvalue('error in (no error)', 0)   # set error in
-    pci1VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[1])   # set addresses
-    pci1VI.setcontrolvalue('values to write', voltages1.tolist())   # set values to write
-    pci1VI.Call()   # Run the VI
-    result = pci1VI.getcontrolvalue('error out')    # retrieve error out
-    if (result[1] != 0):   # check whether there was an error
-        print('There was an error writing to board 1 at PXI4::4::INSTR')
-        print('Error: ', result)
-        print('Press anything and enter to exit...')
-        input()
-        exit()
+    pci0VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
+    # pci0VI.setcontrolvalue('error in (no error)', 0)   # set error in
+    # pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES)   # set addresses
+    pci0VI.setcontrolvalue('Actuator 1 to 37', voltages0.tolist())   # set values to write
+    pci0VI.Call()   # Run the VI
+    result = pci0VI.getcontrolvalue('ERROR STATUS')    # retrieve error out
+    print(result)
+    # if (result[1] != 0):   # check whether there was an error
+    #     print('There was an error writing to mirror 2')
+    #     print('Error: ', result)
+    #     print('Press anything and enter to exit...')
+    #     input()
+    #     exit()
+
+    # pci1VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_1.vi')    # path to the LabVIEW VI for the second board
+    # pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Jinpu\2017\DMfarTable\DM 64bits with photodiode(0_1)\Send Volt to board x64.vi')    # path to the LabVIEW VI for the first board
+
+    # pci1VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
+    # pci1VI.setcontrolvalue('error in (no error)', 0)   # set error in
+    # pci1VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[1])   # set addresses
+    # pci1VI.setcontrolvalue('values to write', voltages1.tolist())   # set values to write
+    # pci1VI.Call()   # Run the VI
+    # result = pci1VI.getcontrolvalue('error out')    # retrieve error out
+    # if (result[1] != 0):   # check whether there was an error
+    #     print('There was an error writing to board 1 at PXI4::4::INSTR')
+    #     print('Error: ', result)
+    #     print('Press anything and enter to exit...')
+    #     input()
+    #     exit()
 
     return
-    
-    # This utilizes the dll created from custom made VIs which communicate directly to each pci card
     """
-    volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
-    error_in = 0
-    error_out = 0
-    c_address0 = (c_int * len(ACTUATOR_ADDRESSES[0]))(*ACTUATOR_ADDRESSES[0])
-    c_address1 = (c_int * len(ACTUATOR_ADDRESSES[1]))(*ACTUATOR_ADDRESSES[1])
-    c_voltage0 = (c_float * len(voltages0.tolist()))(*voltages0.tolist())
-    c_voltage1 = (c_float * len(voltages1.tolist()))(*voltages1.tolist())
-    error_out = volt_to_board.Volt_to_board_0(c_address0, c_voltage0, error_in, error_out)
-    print(error_out)
-    error_out = volt_to_board.Volt_to_board_1(c_address1, c_voltage1, error_in, error_out)
+    # void  ?test_dll@@YAXPAHQAPAD00PAD@Z(int32_t *argc, int32_t *argv, int32_t *channel, int32_t *voltage, CStr status);
+    # This utilizes the dll created from custom made VIs which communicate directly to each pci card
+    
+    # c = 'spam'.encode('utf-8')
+    # a = c_char_p(c)
+    # print(a._objects)
+    # print(type(a._objects))
+
+    volt_to_board = cdll.LoadLibrary('test_dll.dll')
+    argc_var = 0
+    argv_var = 0
+    channel_var = 0
+    voltage_var = voltages0.tolist()
+    status_var = c_char_p('Test'.encode('utf-8'))
+    volt_to_board.YAXPAHQAPAD00PAD(argc_var, argv_var, channel_var, voltage_var, status_var)
     print(error_out)
     return
     """
@@ -241,17 +254,42 @@ def write_to_mirror(genes, dm_actuators):
         within_range = True and (genes[i] >= 0) and (genes[i] <= MAX_VOLTAGE) # check that the voltages are between 0 and 250
     if within_range:    # if all of the genes are within the correct range
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
-            genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
+            genes = genes * 13.72  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
+            print(genes)
             voltage_array = array_conversion(genes) # change the mapping of the indices
-            send_to_board(genes[:19], genes[19:])
+            send_to_board(genes)#[:19], genes[19:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
         print('Error: Genes not in range (within the write_to_mirror function)')
     return
 
-
-
-
 if __name__ == "__main__":
+    # while True:
+    #     if msvcrt.kbhit():  # if the keyboard was hit
+    #         keyboard_input = msvcrt.getwche()   # determine what key was pressed
+    #         if keyboard_input == '\r' or keyboard_input == 's':  # if the enter key was pressed
+    #             break   # get out of the while loop
+        # print('Nothing')
     print('You meant to run GeneticAlgorithm.py')
+    # dm_actuators = acuator_array()
+    # genes = np.array([20]*37)
+    # # print('something')
+    # write_to_mirror(genes,dm_actuators)
+    # print('The voltage is: {0}'.format(20))
+
+      
+
+
+# def new_function():
+#     LabVIEW = win32com.client.Dispatch("Labview.Application")   # Start running Labview
+#     pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_mirror_2.vi')    # path to the LabVIEW VI for the first board
+#     # pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Jinpu\2017\DMfarTable\DM 64bits with photodiode(0_1)\Send Volt to board x64.vi')    # path to the LabVIEW VI for the first board
+
+#     pci0VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
+#     # pci0VI.setcontrolvalue('error in (no error)', 0)   # set error in
+#     # pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES)   # set addresses
+#     pci0VI.getcontrolvalue('FWHM (fs)', new_var)   # set values to write
+#     pci0VI.Call()   # Run the VI
+#     result = pci0VI.getcontrolvalue('ERROR STATUS')    # retrieve error out
+#     print(result)

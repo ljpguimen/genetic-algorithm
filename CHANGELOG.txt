@@ -1,0 +1,4 @@
+CHANGELOG
+
+The changes can be view here:
+https://github.com/markmath/genetic-algorithm/commits/master

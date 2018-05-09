@@ -1,4 +1,6 @@
-"""This function does exactly what the original labview program did"""
+"""This function does exactly what the original labview program did, but not all of the functions
+have been written out
+"""
 import math
 import sys
 import numpy as np
