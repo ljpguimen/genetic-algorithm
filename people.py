@@ -51,10 +51,11 @@ class person(object):
 		"""
 		mirror_f.write_to_mirror(self.genes, dm_actuators)       # write the genes to the mirror
 		time.sleep(WAITING_TIME)    # wait for the given amount of time
-		self.figure_of_merit = figure_of_merit_f.ic() # measure the figure of merit
+		data_output = data_acquisition_f.ic()	
+		self.figure_of_merit = figure_of_merit_f.ic_FOM(data_output,1) # measure the figure of merit
 		return self.figure_of_merit # return the measured figure of merit
 
- 
+
 class parent(person):
 	"""Parent is a person with a good figure of merit who makes new children
 	
