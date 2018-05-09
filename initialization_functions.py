@@ -114,7 +114,7 @@ def initialize():
     num_init_children = 10     # number of starting children
     
     """Note: You can either have an initial voltage or a filename to read from, not both"""
-    init_voltage = 30           # initial voltage on mirror actuators
+    init_voltage = 30          # initial voltage on mirror actuators
     filename = None             # name of file to read from
     '''Note: Also, it can only read the file if it is in saved_mirrors'''
 
@@ -168,12 +168,7 @@ def initialize():
                     break
             elif key_input == 'mutation percentage':   # determine what the user input
                 print('You are changing the mutation percentage')
-                # num_children = change_value('int', 0, 30)   # change the variable's value
-                '''
-                Yong: The line above is a typo, value assigned to wrong name
-                '''
-                mutation_percentage = change_value('int', 0, 30)   # change the variable's value
-
+                num_children = change_value('int', 0, 30)   # change the variable's value
                 if not change_others(): # determine if the user wants to change any other parameters
                     break
             elif key_input == 'init setting':   # determine what the user input
