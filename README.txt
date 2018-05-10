@@ -3,6 +3,12 @@ This is a genetic algorithm used for machine learning. It is a black-box optimiz
 python with some adjustments to get rid of any parts that were no longer 
 used. 
 
+How to run the genetic algorithm:
+
+1) Open Anaconda Prompt by pressing the windows key and typing "Anaconda Prompt"
+2) Navigate to the folder which contains GeneticAlgorithm.py (by using the "cd" and "dir" commands)
+3) Type "python GeneticAlgorithm.py"
+
 
 
 Note: if you want to optimize the lowest figure of merit instead of the highest, change 
