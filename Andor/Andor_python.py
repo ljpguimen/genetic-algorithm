@@ -27,7 +27,7 @@ def main():
 	error_value = andor_dll.Initialize(aBuffer)
 	check_success(error_value, "Initialize")
 
-	print(aBuffer)
+
 	# Determine size (in pixels of camera)
 	gblXPixels = ctypes.c_int()		# Total number of horizontal pixels
 	gblYPixels = ctypes.c_int()		# Total number of vertical pixels
@@ -85,10 +85,8 @@ def main():
 	error_value = andor_dll.IsCoolerOn(ctypes.byref(cooler_on))
 	check_success(error_value, "Check if cooler is on")
 	if (cooler_on.value != 1):
-		print("Error: Cooler not on")
-		#TODO: exit code or somethings
-	else:
-		print("Cooler is on")
+		print("Error: Cooler not on", "Exiting...")
+		return False	#TODO: exit code or somethings
 
 
 	# Set the readout mode of the camera 
@@ -154,9 +152,10 @@ def main():
 
 	error_value = andor_dll.GetStatus(ctypes.byref(camera_status))
 	check_success(error_value, "Get Camera Status")
-	while (camera_status == 20073):		#TODO change to !=
+	while (camera_status.value != 20073):	
 		error_value = andor_dll.GetStatus(ctypes.byref(camera_status))
 		check_success(error_value, "Get Camera Status")
+		#print("Camera Status is ", camera_status.value)
 
 
 	# Set the horizontal and vertical binning and the area of the image to be captured
@@ -174,7 +173,7 @@ def main():
 	# Start the acquisition process 
 	error_value = andor_dll.StartAcquisition()
 	acquiring = check_success(error_value, "Start Acquisition")
-	if (acquiring != False):		# TODO change to ==
+	if (acquiring == False):
 		andor_dll.AbortAcquisition()
 	else:
 		print("Starting Acquisition")
@@ -183,45 +182,33 @@ def main():
 		# Wait until the acquisition is complete
 		error_value = andor_dll.GetStatus(ctypes.byref(camera_status))
 		check_success(error_value, "Get Camera Status")
-		while (camera_status == 20073):		# TODO change to !=
+		while (camera_status.value != 20073): 
 			error_value = andor_dll.GetStatus(ctypes.byref(camera_status))
 			check_success(error_value, "Get Camera Status")
-			print("While loop works")
+			#print("Camera Status is ", camera_status.value)
 
 		# Get the image data from the camera
 		size = ctypes.c_int(gblXPixels.value*gblYPixels.value)
-		#image_pointer = ctypes.cast(ctypes.create_string_buffer( size.value*ctypes.sizeof(ctypes.c_long()) ),ctypes.POINTER(ctypes.c_long))
-		image_pointer = ctypes.create_string_buffer( size.value*ctypes.sizeof(ctypes.c_long()) )
+		image_pointer = ctypes.cast(ctypes.create_string_buffer( size.value*ctypes.sizeof(ctypes.c_long()) ),ctypes.POINTER(ctypes.c_long))
+
 		error_value = andor_dll.GetAcquiredData(image_pointer, size)
 		check_success(error_value, "Get Acquired Data")
-		print(np.array(image_pointer))
-		#plt.imsave('filename.png', np.array(image_pointer.contents), cmap=cm.gray)
 
 
-	# Switch cooler off (if on)
-	error_value = andor_dll.CoolerOFF()
-	check_success(error_value,"Cooler off")
+		# Transfer the image from a pointer to a numpy array
+		image = np.zeros((gblYPixels.value,gblXPixels.value))
+		for x in range(gblXPixels.value):
+			for y in range(gblYPixels.value):
+				image[y,x] = image_pointer[x + y*gblXPixels.value]
 
+		print("max",np.amax(image))
+		print("min", np.amin(image))
+		plt.imsave('filename.png', image, cmap=cm.gray)
 
 	# Shut down camera
 	error_value = andor_dll.ShutDown()
 	check_success(error_value, "Shut down")
 	
-	"""
-	unsigned long 		size = gblXPixels*gblYPixels;
-	long				*pImageArray = NULL;    // main image buffer read from card
-	if (!pImageArray) {
-		std::cout << "Ah NULL";
-		pImageArray = (long*) malloc(size*sizeof(long));
-	}
-	errorValue = GetAcquiredData(pImageArray, size);
-	if (errorValue != DRV_SUCCESS) {
-		std::cout << "Get acquisition data Error\n";
-		std::cout << "Error: " << errorValue << "\n";
-	}
-	free(pImageArray);
-	pImageArray = NULL;
-	"""
-
+	
 if __name__ == "__main__":
 	main()
