@@ -17,6 +17,8 @@ def check_success(error_value, function_name):
 
 def main():
 	
+	read_mode_top = 4	# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
+
 	# Load the atmcd64.dll file 
 	andor_dll = ctypes.cdll.atmcd64d
 
@@ -90,7 +92,7 @@ def main():
 
 
 	# Set the readout mode of the camera 
-	read_mode = ctypes.c_int(4)		# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
+	read_mode = ctypes.c_int(read_mode_top)		# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
 	error_value = andor_dll.SetReadMode(read_mode)
 	check_success(error_value,"Set Read Mode")
 
@@ -201,8 +203,6 @@ def main():
 			for y in range(gblYPixels.value):
 				image[y,x] = image_pointer[x + y*gblXPixels.value]
 
-		print("max",np.amax(image))
-		print("min", np.amin(image))
 		plt.imsave('filename.png', image, cmap=cm.gray)
 
 	# Shut down camera
