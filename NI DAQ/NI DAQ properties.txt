@@ -1,0 +1,1 @@
+number_of_signals_averaged_over_per_acquisition = 50
