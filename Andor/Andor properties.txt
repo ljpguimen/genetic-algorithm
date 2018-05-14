@@ -1,0 +1,10 @@
+4 = read_mode # readout mode options: 0 Full Vertical binning; 1 Multi-Track; 2 Random-Track; 3 Single-Track; 4 Image;
+1 = acquisition_mode # acquisition mode options: 1 Single scan; 2 Accumulate; 3 Kinetics; 4 Fast Kinetics; 5 Run till abort;
+0.1 = exposure_time # exposure time in seconds
+0 = trigger_mode # trigger mode options: 0 internal; 1 external; 6 external start; 7 external exposure (bulb); 9 external FVB EM; 10 software trigger; 12 external charge shifting;
+1 = horizontal_binning # number of pixels used for horizontal binning
+1 = vertical_binning # number of pixels used for vertical binning
+1 = horizontal_start # min is 1. Horizontal start pixel of the subregion of the camera which to take a picture from
+1004 = horizontal_end # max is 1004. Horizontal end pixel of the subregion
+1 = vertical_start # min is 1. Vertical start pixel of the subregion
+1002 = vertical_end # max is 1002. Vertical end pixel of the subregion

@@ -12,12 +12,12 @@ import numpy as np
 def check_success(error_value, function_name):
 	if (error_value != 20002):
 		print(function_name,"Error", error_value)
-		return False
-	return True
+		exit()
 
 def main():
 	
 	read_mode_top = 4	# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
+
 
 	# Load the atmcd64.dll file 
 	andor_dll = ctypes.cdll.atmcd64d

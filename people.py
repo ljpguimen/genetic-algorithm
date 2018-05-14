@@ -36,7 +36,7 @@ class person(object):
 		self.num_genes = num_genes      # store the number of genes the person has
 		self.figure_of_merit = 0
 
-	def test_person(self, dm_actuators):
+	def test_person(self, dm_actuators, device):
 		"""write each person to the mirror to measure the figure of merits
 
 		Parameters
@@ -51,7 +51,7 @@ class person(object):
 		"""
 		mirror_f.write_to_mirror(self.genes, dm_actuators)       # write the genes to the mirror
 		time.sleep(WAITING_TIME)    # wait for the given amount of time
-		data_output = data_acquisition_f.ic()	
+		data_output = device.acquire()	
 		self.figure_of_merit = figure_of_merit_f.ic_FOM(data_output,1) # measure the figure of merit
 		return self.figure_of_merit # return the measured figure of merit
 
@@ -222,7 +222,7 @@ class person_group(object):
 		self.num_people = parent_group.num_parents + child_group.num_children        # set the number of children
 		self.people = list(parent_group.parents) + list(child_group.children)    # initialize the children matrix
 
-	def test_and_sort_people(self, dm_actuators):
+	def test_and_sort_people(self, dm_actuators, device):
 		"""Determine the figure of merit for each parent and child.
 
 		Parameters
@@ -231,7 +231,7 @@ class person_group(object):
 			This contains the list of neighbors to make sure the genes don't break the mirror.
 		"""
 		for each_person in self.people: # go through every person in all_people
-			each_person.test_person(dm_actuators)   # measure the figure of merit of every person
+			each_person.test_person(dm_actuators, device)   # measure the figure of merit of every person
 		self.people.sort(key=operator.attrgetter('figure_of_merit'), reverse = True)    # sort the people so that the highest figure of merit is 0th indexed 
 
 	def best_figures_of_merit(self, num_parents):

@@ -1,1 +1,1 @@
-number_of_signals_averaged_over_per_acquisition = 50
+50 = number_of_reads # This is the number of signals acquired and averaged over for each figure of merit

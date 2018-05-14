@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="data_acqusition_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="figure_of_merit_functions.py">
       <SubType>Code</SubType>
     </Compile>

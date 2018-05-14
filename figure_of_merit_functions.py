@@ -66,7 +66,7 @@ def ic_FOM(frameout, num):
 		print(frameout.max(), fom)
 		return fom
 
-def NI_DAQ_voltage_FOM(voltage, num):
+def NI_DAQ_FOM(voltage, num):
 	"""This is the figure of merit function for the NI_DAQ single voltage hardware
 	
 	Parameters

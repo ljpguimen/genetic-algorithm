@@ -14,12 +14,12 @@ import plot_functions as plot_f
 import warnings
 import os
 import matplotlib.pyplot as plt
-import ic_capture
+import data_acquisition_functions as data_acq_f
+#import ic_capture
 
 ADF_FOLDER       = 'C:\\Users\lambdacubed\Desktop\Yong\GA_CCD\saved_mirrors\\'     # directory for mirror actuator files
 FOM_GRAPH_FOLDER = 'C:\\Users\lambdacubed\Desktop\Yong\GA_CCD\saved_graphs\\'    # directory for figure of merit graphs
 
-# TODO plot and save graph of mirror
 # TODO unable to change number of children or parents during the algorithm
 
 def save_different_directory(different_directory):
@@ -79,6 +79,8 @@ def genetic_algorithm():
 	print('Starting...')
 	start_time = time.time()    # determine the time when the algorithm starts
 	dm_actuators = mirror_f.acuator_array() # initialize the class to determine if actuator voltages break the mirror or not
+	device = data_acq_f.data_acqusition("Andor")	# open and initialize the data acquisition device being used
+
 	iteration_number = 0
 
 	parents = people.parent_group(num_init_parents, num_genes, init_voltage, filename)    # create parents from above constraints
@@ -86,7 +88,7 @@ def genetic_algorithm():
 	children.mutate(mutation_percentage, dm_actuators)    # mutate the children
 	
 	all_people = people.person_group(parents, children)     # combine all of the children and parents into a single container
-	all_people.test_and_sort_people(dm_actuators)   # measure the figures of merits and sort the people so the highest figure of merit is 0th indexed
+	all_people.test_and_sort_people(dm_actuators, device)   # measure the figures of merits and sort the people so the highest figure of merit is 0th indexed
 	
 	best_person = all_people.people[0]  # the best person is the 0th indexed person in all_people
 	print('best_person\n', best_person.figure_of_merit) # show the best person's genes and figure of merit
@@ -133,7 +135,7 @@ def genetic_algorithm():
 
 	'''Close CCD and stop using c library'''
 	# ic_capture.ccd_close()
-
+	device.shut_down()	# shut off the data acquisition device
 
 	print('What would you like to do with the best person?')    # once the loop has finished, the user decides what to do with the genes made
 	while True:     # create an infinite loop

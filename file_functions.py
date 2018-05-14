@@ -11,6 +11,8 @@ import os
 
 
 MIRROR_GRAPH_FOLDER = '\saved_mirror_graphs\\'    # directory for mirror graphs
+ADF_FOLDER       = '\saved_mirrors\\'     # directory for mirror actuator files
+
 
 def write_adf(person, filename):
     """Write genes to a .adf file.
@@ -78,5 +80,18 @@ def write_figures_of_merit(figures_of_merit, filename):
         for i in range(figures_of_merit.shape[0]):  # this should only happen num_parents number of times
             csvwriter.writerow(figures_of_merit[i])     # write a row of the csv file 
 
+
+
+def read_device_properties(filename):
+	""" TODO comments"""
+	initialization_array = np.empty(0,'float')
+	directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
+	with open(directory_path + filename, 'r') as filein:    # open the file to be read from
+		tsvreader = csv.reader(filein, delimiter = " ")    # make the values tab separated
+		for row in tsvreader:
+			initialization_array = np.append(initialization_array, row[0])
+	return initialization_array
+
 if __name__ == "__main__":
     print('You meant to run GeneticAlgorithm.py')
+	#print(read_device_properties('\\NI DAQ\\NI DAQ properties.txt'))
