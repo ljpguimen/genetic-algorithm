@@ -11,7 +11,7 @@ import os
 
 
 MIRROR_GRAPH_FOLDER = '\saved_mirror_graphs\\'    # directory for mirror graphs
-ADF_FOLDER       = '\saved_mirrors\\'     # directory for mirror actuator files
+MIRROR_VOLTAGES_FOLDER       = '\saved_mirrors\\'     # directory for mirror actuator files
 
 
 def write_adf(person, filename):
@@ -56,7 +56,7 @@ def read_adf(filename, num_genes):
     """
     new_gene_array = np.empty(0, 'float')   # initialize array to hold the read genes
     directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
-    new_dir_path = directory_path + ADF_FOLDER  # add the adf_folder for saving to the path
+    new_dir_path = directory_path + MIRROR_VOLTAGES_FOLDER  # add the mirror voltages folder for saving to the path
     with open(new_dir_path + filename, 'r') as filein:    # open the file to be read from
         tsvreader = csv.reader(filein, delimiter = '\t')    # make the values tab separated
         for row in tsvreader:   # for each row in the file
