@@ -4,7 +4,7 @@ Created on Wed March 28 2018
 @author Yong Ma, yongm@umich.edu
 '''
 
-from pyicic.IC_ImagingControl import *
+#from pyicic.IC_ImagingControl import *
 import numpy as np 
 import matplotlib.pyplot as plt
 import copy

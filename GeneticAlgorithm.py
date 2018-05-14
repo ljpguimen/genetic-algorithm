@@ -78,7 +78,7 @@ def genetic_algorithm():
 
 	print('Starting...')
 	start_time = time.time()    # determine the time when the algorithm starts
-	dm_actuators = mirror_f.acuator_array() # initialize the class to determine if actuator voltages break the mirror or not
+	dm_actuators = mirror_f.actuator_array() # initialize the class to determine if actuator voltages break the mirror or not
 	device = data_acq_f.data_acqusition("Andor")	# open and initialize the data acquisition device being used
 
 	iteration_number = 0

@@ -18,6 +18,9 @@ write_to_mirror() -- organizes genes and makes sure they will not break the mirr
 import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np
 
+from ctypes import *
+import os
+
 PCI_BOARDS = [['PXI4::5::INSTR'], ['PXI4::4::INSTR']]   # These are the addresses given in NI-MAX or on Device manager
 # the top row values are the addresses of actuators 0-18 and the bottom values are the addresses of the actuators 19-36
 ACTUATOR_ADDRESSES = [[0x34, 0x54, 0x28, 0x38, 0x08, 0x04, 0x24, 0x50, 0x58, 0x2C, 0x30, 0x1C, 0x10, 0x14, 0x0C, 0x00, 0x3C, 0x20, 0x5C],
@@ -27,7 +30,7 @@ MAX_DIFF = 20 # maximum difference in voltage between neighboring actuators
 
 MAX_VOLTAGE = 100 # maximumm voltage an acuator can have
 
-class acuator_array(object):
+class actuator_array(object):
     """actuator_array is an object that represents deformable mirror actuators and checks
     whether the actuator voltage values break the mirror or not
 
@@ -162,7 +165,7 @@ def send_to_board(voltages0, voltages1):
     """
     #There are 3 different sets of code to write to the board: calling the LabVIEW VIs themselves, calling functions in a LabVIEW dll, and using pyVISA 
     # This is the code for running the LabView VI which communicates with the deformable mirror 
-    
+    """
     LabVIEW = win32com.client.Dispatch("Labview.Application")   # Start running Labview
     pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_0.vi')    # path to the LabVIEW VI for the first board
     pci0VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
@@ -196,7 +199,8 @@ def send_to_board(voltages0, voltages1):
     
     # This utilizes the dll created from custom made VIs which communicate directly to each pci card
     """
-    volt_to_board = cdll.LoadLibrary('volt_to_board.dll')
+    directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
+    volt_to_board = cdll.LoadLibrary(directory_path + '\\volt_to_board.dll')
     error_in = 0
     error_out = 0
     c_address0 = (c_int * len(ACTUATOR_ADDRESSES[0]))(*ACTUATOR_ADDRESSES[0])
@@ -208,7 +212,7 @@ def send_to_board(voltages0, voltages1):
     error_out = volt_to_board.Volt_to_board_1(c_address1, c_voltage1, error_in, error_out)
     print(error_out)
     return
-    """
+    
 
     # This is the code for using pyVISA, but it doesn't support PXI devices at the moment (5/18/2017)
     """
@@ -254,4 +258,8 @@ def write_to_mirror(genes, dm_actuators):
 
 
 if __name__ == "__main__":
-    print('You meant to run GeneticAlgorithm.py')
+	print('You meant to run GeneticAlgorithm.py')
+
+	dm_actuators = actuator_array()
+	genes = np.zeros(37)
+	write_to_mirror(genes,dm_actuators)

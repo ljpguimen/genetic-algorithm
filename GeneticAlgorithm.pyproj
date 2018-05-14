@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="data_acqusition_functions.py">
+    <Compile Include="data_acquisition_functions.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="figure_of_merit_functions.py">
@@ -39,6 +39,9 @@
     <Compile Include="original_LabView.py" />
     <Compile Include="people.py" />
     <Compile Include="plot_functions.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Set_voltages.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
