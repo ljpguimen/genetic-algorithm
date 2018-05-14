@@ -15,7 +15,7 @@ write_to_mirror() -- organizes genes and makes sure they will not break the mirr
 """
 
 #import pyvisa   # Use this when using the pyvisa code in send_to_board
-import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
+#import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np
 
 from ctypes import *
@@ -167,7 +167,7 @@ def send_to_board(voltages0, voltages1):
     # This is the code for running the LabView VI which communicates with the deformable mirror 
     """
     LabVIEW = win32com.client.Dispatch("Labview.Application")   # Start running Labview
-    pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_0.vi')    # path to the LabVIEW VI for the first board
+    pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\LabView send volt to board\Volt_to_board_0.vi')    # path to the LabVIEW VI for the first board
     pci0VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
     pci0VI.setcontrolvalue('error in (no error)', 0)   # set error in
     pci0VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[0])   # set addresses
@@ -181,7 +181,7 @@ def send_to_board(voltages0, voltages1):
         input()
         exit()
 
-    pci1VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\Volt_to_board_1.vi')    # path to the LabVIEW VI for the second board
+    pci1VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\LabView send volt to board\Volt_to_board_1.vi')    # path to the LabVIEW VI for the second board
     pci1VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
     pci1VI.setcontrolvalue('error in (no error)', 0)   # set error in
     pci1VI.setcontrolvalue('addresses', ACTUATOR_ADDRESSES[1])   # set addresses
@@ -200,9 +200,10 @@ def send_to_board(voltages0, voltages1):
     # This utilizes the dll created from custom made VIs which communicate directly to each pci card
     """
     directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
-    volt_to_board = cdll.LoadLibrary(directory_path + '\\volt_to_board.dll')
+    print(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
+    volt_to_board = cdll.LoadLibrary(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
     error_in = 0
-    error_out = 0
+    error_out = c_char()
     c_address0 = (c_int * len(ACTUATOR_ADDRESSES[0]))(*ACTUATOR_ADDRESSES[0])
     c_address1 = (c_int * len(ACTUATOR_ADDRESSES[1]))(*ACTUATOR_ADDRESSES[1])
     c_voltage0 = (c_float * len(voltages0.tolist()))(*voltages0.tolist())
