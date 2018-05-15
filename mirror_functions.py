@@ -202,6 +202,7 @@ def send_to_board(voltages0, voltages1):
     print(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
     volt_to_board = cdll.LoadLibrary(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
     error_in = 0
+    print(error_in, "eerr")
     error_out = c_char()
     c_address0 = (c_int * len(ACTUATOR_ADDRESSES[0]))(*ACTUATOR_ADDRESSES[0])
     c_address1 = (c_int * len(ACTUATOR_ADDRESSES[1]))(*ACTUATOR_ADDRESSES[1])
@@ -247,7 +248,7 @@ def write_to_mirror(genes, dm_actuators):
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # change the mapping of the indices
-            #send_to_board(genes[:19], genes[19:])
+            send_to_board(genes[:19], genes[19:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
@@ -258,7 +259,7 @@ def write_to_mirror(genes, dm_actuators):
 
 
 if __name__ == "__main__":
-	print('You meant to run GeneticAlgorithm.py')
+	#print('You meant to run GeneticAlgorithm.py')
 
 	dm_actuators = actuator_array()
 	genes = np.zeros(37)
