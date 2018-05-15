@@ -14,6 +14,10 @@ send_to_board() -- sends two arrays of voltages to the two PCI boards
 write_to_mirror() -- organizes genes and makes sure they will not break the mirror
 """
 
+# TODO get rid of labView
+# TODO plot the mirror using plot functions
+# TODO get rid of any hard coded values
+
 #import pyvisa   # Use this when using the pyvisa code in send_to_board
 #import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np

@@ -59,7 +59,7 @@ def genetic_algorithm():
 
 	#This function sets all of the values of the number of parents, children, and mutation amount
 	num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage = initialization_f.initialize()
-	"""Note: To change the default values, go into inialization_functions.py in the initialize function"""
+	"""Note: To change the default values, go into genetic_algorithm.ini"""
 
 	print('\nNOTE: LabView must be open in order to run the program\n')
 	print('Here are the options you have while the program is running:')
@@ -170,8 +170,12 @@ def genetic_algorithm():
 # If this function is being run explicitly, I want the genetic algorithm funciton to be run.
 # Otherwise, do not run the main function and so it only has the import functionality
 if __name__ == "__main__":
-	#genetic_algorithm()
+    genetic_algorithm()
 
-	device = data_acq_f.data_acqusition("Andor")	# open and initialize the data acquisition device being used
-	device.acquire()
-	device.shut_down()
+
+    #help("Set_voltages)
+
+    
+    #device = data_acq_f.data_acqusition("Andor")	# open and initialize the data acquisition device being used
+	#device.acquire()
+	#device.shut_down()

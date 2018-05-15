@@ -34,7 +34,7 @@ class person(object):
 		self.genes = np.empty(num_genes, 'float', 'C')  # a person should have an empty array the size its number of genes
 		self.amount_mutated = 0.0       # the person hasn't mutated at all when they are created (this is absolutely unnecessary but is used for backwards compatibility)
 		self.num_genes = num_genes      # store the number of genes the person has
-		self.figure_of_merit = 0
+		self.figure_of_merit = 0        # initialize the figure of merit to be 0
 
 	def test_person(self, dm_actuators, device):
 		"""write each person to the mirror to measure the figure of merits
@@ -51,7 +51,7 @@ class person(object):
 		"""
 		mirror_f.write_to_mirror(self.genes, dm_actuators)       # write the genes to the mirror
 		time.sleep(WAITING_TIME)    # wait for the given amount of time
-		data_output = device.acquire()	
+		data_output = device.acquire()  # get data from the specified data acquisition device
 		self.figure_of_merit = figure_of_merit_f.ic_FOM(data_output,1) # measure the figure of merit
 		return self.figure_of_merit # return the measured figure of merit
 

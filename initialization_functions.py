@@ -5,7 +5,11 @@ change_value() -- Change any variable value in the program utilizing user input.
 change_others() -- This function checks if the user wants to change any other variables.
 initialize() -- This function contains all default values and defines all initial variables.
 """
+# TODO input the data acquisition device
 import msvcrt
+import file_functions as file_f
+
+INITIALIZATION_FILE = "genetic_algorith.ini"
 
 def change_value(datatype, lowerbound = None, upperbound = None):
     """Change any variable value in the program utilizing user input.
@@ -109,18 +113,21 @@ def initialize():
     mutation_percentage : mutation percentage, float
         This value is proportional to both the number of genes which change and the amount the mutating genes change.
     """
-    num_genes = 37              # number of genes of each person (or mirror actuators)
-    num_init_parents = 1        # number of parents to start with
-    num_init_children = 10     # number of starting children
+
+    initialization_variables = file_f.read_initialization_variables(INITIALIZATION_FILE)	# read all of the initialization variables from the ini file
+    
+    num_genes = int(initialization_variables[0])              # number of genes of each person (or mirror actuators)
+    num_init_parents = int(initialization_variables[1])        # number of parents to start with
+    num_init_children = int(initialization_variables[2])     # number of starting children
     
     """Note: You can either have an initial voltage or a filename to read from, not both"""
-    init_voltage = 30          # initial voltage on mirror actuators
-    filename = None             # name of file to read from
+    init_voltage = int(initialization_variables[3])          # initial voltage on mirror actuators
+    filename = str(initialization_variables[4])             # name of file to read from
     '''Note: Also, it can only read the file if it is in saved_mirrors'''
 
-    num_parents = 10            # number of parents in loop iterations
-    num_children = 100          # number of children in loop iterations
-    mutation_percentage = 20    # if you want 20% mutation, enter 20
+    num_parents = int(initialization_variables[5])            # number of parents in loop iterations
+    num_children = int(initialization_variables[6])          # number of children in loop iterations
+    mutation_percentage = int(initialization_variables[7])    # if you want 20% mutation, enter 20
 
     if not (init_voltage is None) and not (filename is None):
         print('Error: You have both an initial voltage and a filename to read from')

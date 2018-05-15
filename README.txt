@@ -3,6 +3,8 @@ This is a genetic algorithm used for machine learning. It is a black-box optimiz
 python with some adjustments to get rid of any parts that were no longer 
 used. 
 
+Change the default running values in genetic_algorithm.ini
+
 How to run the genetic algorithm:
 
 1) Open Anaconda Prompt by pressing the windows key and typing "Anaconda Prompt"
@@ -60,26 +62,4 @@ location: file_functions.py
 NUMBER_OF_READS - number of voltage values to average over in the photodiode
 location: figure_of_merit_functions.py
 
-
-
-
-The default starting values are given in initialization_functions.py 
-starting a little after line 100. This has the following variables:
-num_genes = 37              # number of genes of each person (or mirror actuators)
-
-num_init_parents = 1        # number of parents to start with
-
-num_init_children = 10     # number of starting children
-    
-
-init_voltage = 30           # initial voltage on mirror actuators
-
-filename = None             # name of file to read from
-
-
-num_parents = 10            # number of parents in loop iterations
-
-num_children = 100          # number of children in loop iterations
-
-mutation_percentage = 2    # if you want 20% mutation, enter 20
 

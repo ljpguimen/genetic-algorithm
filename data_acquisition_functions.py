@@ -7,7 +7,8 @@ NI_DAQ_voltage() -- acquires a voltage from the NI hardware (usually connected t
 
 """
 
-# TODO get rid of # in front of exit()
+# TODO comment everything
+# TODO output an image as a numpy array
 
 import numpy as np 
 import file_functions as file_f
@@ -35,7 +36,7 @@ class data_acqusition(object):
 		if (not ((device =="Andor") or (device == "NI DAQ") or (device == "IC"))):
 			print("Error: The device you entered into data acquisition wasn't valid")
 			exit()
-		initialize_array = file_f.read_device_properties("\\"+ self.device + "\\" + self.device + " properties.txt")
+		initialize_array = file_f.read_initialization_variables("\\"+ self.device + "\\" + self.device + " properties.ini")
 		if (device == "Andor"):
 			self.__initialize_andor(initialize_array)
 		elif (device == "NI DAQ"):
@@ -46,9 +47,10 @@ class data_acqusition(object):
 	def __check_success(self, error_value, function_name):
 		if (error_value != 20002):
 			print(function_name,"Error", error_value)
-			#exit()
+			exit()
 
 	def __initialize_andor(self, initialize_array):
+
 		read_mode_top = int(initialize_array[0])	# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
 		acquisition_mode_top = int(initialize_array[1])	# acquisition mode options: 1 Single scan;	2 Accumulate;	3 Kinetics;	 4 Fast Kinetics;	5 Run till abort;
 		exposure_time_top = float(initialize_array[2])		# time in seconds
@@ -132,7 +134,7 @@ class data_acqusition(object):
 		self.__check_success(error_value, "Check if cooler is on")
 		if (cooler_on.value != 1):
 			print("Error: Cooler not on", "Exiting...")
-			#exit()
+			exit()
 
 		# Set the readout mode of the camera 
 		read_mode = ctypes.c_int(read_mode_top)		

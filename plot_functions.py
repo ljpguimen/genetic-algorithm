@@ -2,11 +2,7 @@
 
 Functions:
 plot_performance() -- plots the figures of merit of the given people
-plot_mirror() -- shows the mirror shape
 """
-
-# TODO plot mirror function
-# TODO first plot overhead and then faster every other time
 
 import numpy as np
 import matplotlib.pyplot as plt
