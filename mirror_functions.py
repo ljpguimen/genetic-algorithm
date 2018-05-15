@@ -117,7 +117,6 @@ class actuator_array(object):
         valid_genes : valid genes, bool
             True if the genes do not break the mirror
         """
-        genes = genes*2.625   # This is the DM constant used in the original code
         valid_genes = True    # the child is good until proven bad
         for i in range(len(self.dm_actuator_neighbors)):      # Test every actuator value with its neighbors' values
             valid_genes = valid_genes and (abs(genes[self.dm_actuator_neighbors[i][0]]-genes[self.dm_actuator_neighbors[i][1]]) <= MAX_DIFF)  # test voltage difference between neighboring actuators is less than 30
@@ -248,7 +247,7 @@ def write_to_mirror(genes, dm_actuators):
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
             genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
             voltage_array = array_conversion(genes) # change the mapping of the indices
-            send_to_board(genes[:19], genes[19:])
+            #send_to_board(genes[:19], genes[19:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
     else:
