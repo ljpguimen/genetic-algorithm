@@ -164,7 +164,7 @@ def send_to_board(voltages0, voltages1):
     """
     #There are 3 different sets of code to write to the board: calling the LabVIEW VIs themselves, calling functions in a LabVIEW dll, and using pyVISA 
     # This is the code for running the LabView VI which communicates with the deformable mirror 
-    """
+    
     LabVIEW = win32com.client.Dispatch("Labview.Application")   # Start running Labview
     pci0VI = LabVIEW.getvireference('C:\\Users\lambdacubed\Desktop\Mark\genetic_algorithm_python\LabView send volt to board\Volt_to_board_0.vi')    # path to the LabVIEW VI for the first board
     pci0VI._FlagAsMethod("Call")    # Flag "Call" as the method to run the VI in this path
@@ -197,6 +197,7 @@ def send_to_board(voltages0, voltages1):
     return
     
     # This utilizes the dll created from custom made VIs which communicate directly to each pci card
+    # While this doesn't use the LabVIEW application directly, the dll requires that LabVIEW is installed
     """
     directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
     print(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
@@ -213,8 +214,8 @@ def send_to_board(voltages0, voltages1):
     error_out = volt_to_board.Volt_to_board_1(c_address1, c_voltage1, error_in, error_out)
     print(error_out)
     return
+    """
     
-
     # This is the code for using pyVISA, but it doesn't support PXI devices at the moment (5/18/2017)
     """
     rm = pyvisa.ResourceManager()   # instantiate an object to manage all devices connected to the computer
