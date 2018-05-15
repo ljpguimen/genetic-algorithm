@@ -196,25 +196,6 @@ def send_to_board(voltages0, voltages1):
 
     return
     
-    # This utilizes the dll created from custom made VIs which communicate directly to each pci card
-    # While this doesn't use the LabVIEW application directly, the dll requires that LabVIEW is installed
-    """
-    directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
-    print(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
-    volt_to_board = cdll.LoadLibrary(directory_path + '\\LabView send volt to board\\DLL\\volt_to_board.dll')
-    error_in = 0
-    print(error_in, "eerr")
-    error_out = c_char()
-    c_address0 = (c_int * len(ACTUATOR_ADDRESSES[0]))(*ACTUATOR_ADDRESSES[0])
-    c_address1 = (c_int * len(ACTUATOR_ADDRESSES[1]))(*ACTUATOR_ADDRESSES[1])
-    c_voltage0 = (c_float * len(voltages0.tolist()))(*voltages0.tolist())
-    c_voltage1 = (c_float * len(voltages1.tolist()))(*voltages1.tolist())
-    error_out = volt_to_board.Volt_to_board_0(c_address0, c_voltage0, error_in, error_out)
-    print(error_out)
-    error_out = volt_to_board.Volt_to_board_1(c_address1, c_voltage1, error_in, error_out)
-    print(error_out)
-    return
-    """
     
     # This is the code for using pyVISA, but it doesn't support PXI devices at the moment (5/18/2017)
     """
