@@ -170,4 +170,8 @@ def genetic_algorithm():
 # If this function is being run explicitly, I want the genetic algorithm funciton to be run.
 # Otherwise, do not run the main function and so it only has the import functionality
 if __name__ == "__main__":
-	genetic_algorithm()
+	#genetic_algorithm()
+
+	device = data_acq_f.data_acqusition("Andor")	# open and initialize the data acquisition device being used
+	device.acquire()
+	device.shut_down()

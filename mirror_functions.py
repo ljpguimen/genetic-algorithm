@@ -241,8 +241,8 @@ def write_to_mirror(genes, dm_actuators):
 
 
 if __name__ == "__main__":
-	#print('You meant to run GeneticAlgorithm.py')
+	print('You meant to run GeneticAlgorithm.py')
 
-	dm_actuators = actuator_array()
-	genes = np.zeros(37)
-	write_to_mirror(genes,dm_actuators)
+	#dm_actuators = actuator_array()
+	#genes = np.zeros(37)
+	#write_to_mirror(genes,dm_actuators)

@@ -49,17 +49,16 @@ class data_acqusition(object):
 			#exit()
 
 	def __initialize_andor(self, initialize_array):
-
-		read_mode_top = initialize_array[0]	# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
-		acquisition_mode_top = initialize_array[1]	# acquisition mode options: 1 Single scan;	2 Accumulate;	3 Kinetics;	 4 Fast Kinetics;	5 Run till abort;
-		exposure_time_top = initialize_array[2]		# time in seconds
-		trigger_mode_top = initialize_array[3]	# trigger mode options:	0 internal;	1 external;	6 external start;	7 external exposure (bulb);	9 external FVB EM;	10 software trigger;	12 external charge shifting;
-		horizontal_binning_top = initialize_array[4]
-		vertical_binning_top = initialize_array[5]
-		horizontal_start_top = initialize_array[6]
-		horizontal_end_top = initialize_array[7]
-		vertical_start_top = initialize_array[8]
-		vertical_end_top = initialize_array[9]
+		read_mode_top = int(initialize_array[0])	# readout mode options: 0 Full Vertical binning;	1 Multi-Track;	2 Random-Track;	 3 Single-Track;	4 Image;
+		acquisition_mode_top = int(initialize_array[1])	# acquisition mode options: 1 Single scan;	2 Accumulate;	3 Kinetics;	 4 Fast Kinetics;	5 Run till abort;
+		exposure_time_top = float(initialize_array[2])		# time in seconds
+		trigger_mode_top = int(initialize_array[3])	# trigger mode options:	0 internal;	1 external;	6 external start;	7 external exposure (bulb);	9 external FVB EM;	10 software trigger;	12 external charge shifting;
+		horizontal_binning_top = int(initialize_array[4])
+		vertical_binning_top = int(initialize_array[5])
+		horizontal_start_top = int(initialize_array[6])
+		horizontal_end_top = int(initialize_array[7])
+		vertical_start_top = int(initialize_array[8])
+		vertical_end_top = int(initialize_array[9])
 
 
 		
@@ -82,7 +81,6 @@ class data_acqusition(object):
 
 		error_value = self.andor_dll.GetDetector(ctypes.byref(gblXPixels),ctypes.byref(gblYPixels))
 		self.__check_success(error_value,"GetDetector")
-
 
 		# Set vertical shift speed to recommended value
 		vertical_shift_index = ctypes.c_int()	# the index to access specific vertical shift speeds 
@@ -189,7 +187,7 @@ class data_acqusition(object):
 		error_value = self.andor_dll.GetAcquisitionTimings(ctypes.byref(actual_exposure_time),ctypes.byref(actual_accumulate_time),ctypes.byref(actual_kinetic_time))
 		self.__check_success(error_value, "Get Acquisition Timings")
 
-		print('Exposure time is ', actual_exposure_time)
+		print('Exposure time is ', actual_exposure_time.value)
 
 		# Set the horizontal and vertical binning and the area of the image to be captured
 		horizontal_binning = ctypes.c_int(horizontal_binning_top)		# Number of pixels to bin horizontally
@@ -198,6 +196,9 @@ class data_acqusition(object):
 		horizontal_end = ctypes.c_int(horizontal_end_top) 		# End column of image to be taken (inclusive)
 		vertical_start = ctypes.c_int(vertical_start_top)			# Start row of image to be taken (inclusive)
 		vertical_end = ctypes.c_int(vertical_end_top)		# End row of image to be taken (inclusive)
+
+		self.number_x_pixels = horizontal_end_top - horizontal_start_top + 1
+		self.number_y_pixels = vertical_end_top - vertical_start_top + 1
 
 		error_value = self.andor_dll.SetImage(horizontal_binning, vertical_binning, horizontal_start, horizontal_end, vertical_start, vertical_end);
 		self.__check_success(error_value, "Set Image")
@@ -229,35 +230,33 @@ class data_acqusition(object):
 			self.__check_success(error_value, "Get Camera Status")
 
 		# Start the acquisition process 
-		error_value = andor_dll.StartAcquisition()
+		error_value = self.andor_dll.StartAcquisition()
 		acquiring = self.__check_success(error_value, "Start Acquisition")
 		if (acquiring == False):
-			andor_dll.AbortAcquisition()
-		else:
-			print("Starting Acquisition")
+			self.andor_dll.AbortAcquisition()
 
 
 			# Wait until the acquisition is complete
-			error_value = andor_dll.GetStatus(ctypes.byref(camera_status))
+			error_value = self.andor_dll.GetStatus(ctypes.byref(camera_status))
 			self.__check_success(error_value, "Get Camera Status")
 			while (camera_status.value != 20073): 
-				error_value = andor_dll.GetStatus(ctypes.byref(camera_status))
+				error_value = self.andor_dll.GetStatus(ctypes.byref(camera_status))
 				self.__check_success(error_value, "Get Camera Status")
 				#print("Camera Status is ", camera_status.value)
 
 			# Get the image data from the camera
-			size = ctypes.c_int(gblXPixels.value*gblYPixels.value)
+			size = ctypes.c_int(self.number_x_pixels*self.number_y_pixels)
 			image_pointer = ctypes.cast(ctypes.create_string_buffer( size.value*ctypes.sizeof(ctypes.c_long()) ),ctypes.POINTER(ctypes.c_long))
 
-			error_value = andor_dll.GetAcquiredData(image_pointer, size)
+			error_value = self.andor_dll.GetAcquiredData(image_pointer, size)
 			self.__check_success(error_value, "Get Acquired Data")
 
 			# TODO make this not a nested for loop
 			# Transfer the image from a pointer to a numpy array
-			image = np.zeros((gblYPixels.value,gblXPixels.value))
-			for x in range(gblXPixels.value):
-				for y in range(gblYPixels.value):
-					image[y,x] = image_pointer[x + y*gblXPixels.value]
+			image = np.zeros((self.number_y_pixels,self.number_x_pixels))
+			for x in range(self.number_x_pixels):
+				for y in range(self.number_y_pixels):
+					image[y,x] = image_pointer[x + y*self.number_x_pixels]
 
 			plt.imsave('filename.png', image, cmap=cm.gray)
 
