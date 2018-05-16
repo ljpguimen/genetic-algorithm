@@ -51,8 +51,7 @@ class person(object):
 		"""
 		mirror_f.write_to_mirror(self.genes, dm_actuators)       # write the genes to the mirror
 		time.sleep(WAITING_TIME)    # wait for the given amount of time
-		data_output = device.acquire()  # get data from the specified data acquisition device
-		self.figure_of_merit = figure_of_merit_f.ic_FOM(data_output,1) # measure the figure of merit
+		self.figure_of_merit = device.figure_of_merit()  # measure and calculate the figure of merit
 		return self.figure_of_merit # return the measured figure of merit
 
 

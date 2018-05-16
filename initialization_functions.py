@@ -5,7 +5,7 @@ change_value() -- Change any variable value in the program utilizing user input.
 change_others() -- This function checks if the user wants to change any other variables.
 initialize() -- This function contains all default values and defines all initial variables.
 """
-# TODO fix the data acquisition device
+
 import msvcrt
 import file_functions as file_f
 
@@ -21,7 +21,7 @@ def change_value(datatype, lowerbound = None, upperbound = None):
     lowerbound : either an int or float, optional
         The lowest value the variable can be changed to.
     upperbound : either an int or float, optional
-        The lowest value the variable can be changed to. 
+        The highest value the variable can be changed to. 
 
     Returns
     -------
@@ -131,6 +131,8 @@ def initialize():
 
     data_acquisition_device = initialization_variables[8]
 
+    fom_num = int(initialization_variables[9])
+
     if not (init_voltage is None) and not (filename is None):
         print('Error: You have both an initial voltage and a filename to read from')
 
@@ -143,6 +145,7 @@ def initialize():
     print('\tInitial voltage of starting parent: ', init_voltage, '\n')
     print('\tMutation percentage: ', mutation_percentage, '\n')
     print('\tData acquisition device: ', data_acquisition_device, '\n')
+    print('\tFigure of merit calculation number: ', fom_num, '\n')
     print('Would you like to change any of these values?\nEnter "y" or "n"')
     print('Note: the locations of all important variables are in the README.txt file')
     keyboard_input = input()    # get input from the user
@@ -155,6 +158,7 @@ def initialize():
             print('To change the mutation percentage, enter "mutation percentage"')
             print('To change the filename or initial voltage, enter "init setting"')
             print('To change the data acquisition device, enter "daq"')
+            print('To change the figure of merit calculation number, enter "fom"')
             print('To change nothing, enter "none"')
             key_input = input() # get input from the user
             if key_input == 'initial parents':  # determine what the user input
@@ -184,8 +188,13 @@ def initialize():
                     break
             elif key_input == 'daq':   # determine what the user input
                 print('You are changing the data acquisition device')
-                print('The options are "Andor", "NI DAQ", or "IC"')
+                print('The options are "Andor", "NI_DAQ", or "IC"')
                 data_acquisition_device = change_value('string')   # change the variable's value
+                if not change_others(): # determine if the user wants to change any other parameters
+                    break
+            elif key_input == 'fom':   # determine what the user input
+                print('You are changing the figure of merit calculation number')
+                fom_num = change_value('int')   # change the variable's value
                 if not change_others(): # determine if the user wants to change any other parameters
                     break
             elif key_input == 'init setting':   # determine what the user input
@@ -217,7 +226,7 @@ def initialize():
                 break
             else:
                 print('You did not enter a valid command')
-    return num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage, data_acquisition_device
+    return num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage, data_acquisition_device, fom_num
 
 if __name__ == "__main__":
     print('You meant to run GeneticAlgorithm.py')

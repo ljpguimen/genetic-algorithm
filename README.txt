@@ -2,6 +2,8 @@ This is a genetic algorithm used for machine learning. It is a black-box optimiz
 developed by O. Albert and was published in Optics Letters, Vol. 25, No. 15, August 1, 2000. It was then moved to 
 python with some adjustments to get rid of any parts that were no longer used. 
 
+
+
 HOW TO RUN
 1) Open Anaconda Prompt by pressing the windows key and typing "Anaconda Prompt"
 2) Navigate to the folder which contains GeneticAlgorithm.py (by using the "cd" and "dir" commands)
@@ -16,22 +18,21 @@ DATA ACQUISITION SETTINGS
 To adjust data acquisition settings, navigate to the appropriate folder and adjust the properties.ini file
 For example, navigate to "Andor/Andor properties.ini" and adjust those initialization settings.
 
+Note: the program always searches for the highest figure of merit.
+If you want to optimize for the smallest value just make your figure of merit negative 
+
 
 HOW TO SET UP A NEW DATA ACQUISITION DEVICE
-1) Create a folder with your new device 
+1) Create a folder for your new device 
 2) Within that folder, create a properties.ini file formatted the same as the other .ini files.
-3) Adjust the data_acquisition_functions.py file to include an initialize, acquire, and shut_down function for your device.
+3) Adjust the data_acquisition_functions.py file to include an initialize, acquire, figure of merit, and shut_down function for your device.
 4) Include your device as an available option in the genetic_algorithm.ini file
 
 Example: If you want to call your device "device1", create a folder named "device1". Within that folder, create
 a file named "device1 properties.ini". Adjust data_acquisition_functions.py to have options for 
 "elif (self.device == "device1"):" in its public functions (public functions do not have "__" in front of their name).
 Then, go into genetic_algorithm.ini and let "device1" be an option.
-
-
-Note: if you want to optimize the lowest figure of merit instead of the highest, change 
-Self.people.sort(key=operator.attrgetter('figure_of_merit'), reverse = True) around line 232 of people.py so it is reverse = False
-self.people.sort(key=operator.attrgetter('figure_of_merit'), reverse = False)
+Note: the device name "device1" or whatever you choose, cannot have any space in it
 
 
 

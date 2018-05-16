@@ -7,8 +7,9 @@ NI_DAQ_voltage() -- acquires a voltage from the NI hardware (usually connected t
 
 """
 
+
 # TODO deep copy pointer
-# TODO put saving as png for andor camera in figure of merit or something
+import figure_of_merit_functions as figure_of_merit_f
 
 import numpy as np  # useful general python library
 import file_functions as file_f     # use this for reading and writing to files
@@ -16,7 +17,7 @@ import os   # this gives information about the current working directory
 
 # These libraries are needed for IC cameras
 #from pyicic.IC_ImagingControl import *
-#import copy
+import copy
 
 # This is needed for the NI DAQ
 import win32com.client	# Python ActiveX Client for calling and running LabVIEW
@@ -24,9 +25,10 @@ import win32com.client	# Python ActiveX Client for calling and running LabVIEW
 # These libraries are needed for the Andor camera
 import ctypes	# this is used for being a wrapper to the c functions in the Andor dll
 import time     # this is used to make the program sleep for a little bit so the camera calibrates fully
-#import matplotlib.pyplot as plt
-#import matplotlib.cm as cm
-#plt.imsave('filename.png', image, cmap=cm.gray)
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
+DAQ_DEVICES = ["Andor", "NI_DAQ", "IC"]
 
 # These are Andor error codes which are given in the sdk pdf file
 DRV_SUCCESS = 20002
@@ -36,18 +38,20 @@ class data_acqusition(object):
     """This object is used to initialize, acquire data from, and shut down various different hardware for data acquisition
     """
     
-    def __init__(self, device):
+    def __init__(self, device, fom_num):
         self.device = device    # save which acquisition device is being used
         initialize_array = file_f.read_initialization_variables("\\"+ self.device + "\\" + self.device + " properties.ini") # read in the initialization information from the file at device/device properites.ini
+        self.fom_num = fom_num
         # initialize the specific device being called
-        if (device == "Andor"):
+        if (device == DAQ_DEVICES[0]):  # if the device name is "Andor"
             self.__initialize_andor(initialize_array)
-        elif (device == "NI DAQ"):
+        elif (device == DAQ_DEVICES[1]):    # if the device name is "NI_DAQ"
             self.__initialize_NI_DAQ(initialize_array)
-        elif (device == "IC"):
+        elif (device == DAQ_DEVICES[2]):    # if the device name is "IC"
             self.__initialize_IC(initialize_array)
         else:
             print("Error: The device you entered into data acquisition wasn't valid")
+            print("The possible devices are: ", DAQ_DEVICES)
             exit()
 
 
@@ -199,7 +203,6 @@ class data_acqusition(object):
         actual_exposure_time = ctypes.c_float()
         actual_accumulate_time = ctypes.c_float()
         actual_kinetic_time = ctypes.c_float()
-        
         error_value = self.andor_dll.GetAcquisitionTimings(ctypes.byref(actual_exposure_time),ctypes.byref(actual_accumulate_time),ctypes.byref(actual_kinetic_time))
         self.__check_success(error_value, "Get Acquisition Timings")
         
@@ -225,27 +228,43 @@ class data_acqusition(object):
         Parameters
         ----------
         initialize_array : initialization array, numpy array
-            This contains information from the "NI DAQ/NI DAQ properties.ini" file 
+            This contains information from the "NI_DAQ/NI_DAQ properties.ini" file 
         """
         
         self.number_of_reads = int(initialize_array[0])  # determine number voltages to average over
         directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
         LabVIEW = win32com.client.Dispatch("Labview.Application")   # Start running Labview
-        self.pci0VI = LabVIEW.getvireference(directory_path + '\\NI DAQ\\get_average_photodiode_voltage.vi')    # get the path to the LabVIEW VI
+        self.pci0VI = LabVIEW.getvireference(directory_path + '\\NI_DAQ\\get_average_photodiode_voltage.vi')    # get the path to the LabVIEW VI
     
     def __initialize_IC(self, initialize_array):
     	return # TODO
     
     
+    def figure_of_merit(self):
+        """Determine the figure of merit using the selected device
+
+        Parameters
+        ----------
+        fom_num: figure of merit number, int
+            This determines which calculation to use when calculating the figure of merit
+        """
+        self.acquire()
+        if (self.device == DAQ_DEVICES[0]): # if the device name is "Andor"
+            figure_of_merit_f.Andor_FOM(self.image, self.fom_num)
+        elif (self.device == DAQ_DEVICES[1]):   # if the device name is "NI_DAQ"
+            figure_of_merit_f.NI_DAQ_FOM(self.voltage, self.fom_num)
+        elif (self.device == DAQ_DEVICES[2]):   # if the device name is "IC"
+            figure_of_merit_f.ic_FOM(self.frameout, self.fom_num)
+
     
     def acquire(self):
         """Acquire data from the appropriate data acquisition hardware
         """
-        if (self.device == "Andor"):
+        if (self.device == DAQ_DEVICES[0]): # if the device name is "Andor"
             self.__acquire_andor()
-        elif (self.device == "NI DAQ"):
+        elif (self.device == DAQ_DEVICES[1]):   # if the device name is "NI_DAQ"
             self.__acquire_NI_DAQ()
-        elif (self.device == "IC"):
+        elif (self.device == DAQ_DEVICES[2]):   # if the device name is "IC"
             self.__acquire_IC()
     
     def __acquire_andor(self):
@@ -270,28 +289,39 @@ class data_acqusition(object):
         acquiring = self.__check_success(error_value, "Start Acquisition")
         if (acquiring == False):
             self.andor_dll.AbortAcquisition()
-
-
+            
+            
             # Wait until the acquisition is complete
             error_value = self.andor_dll.GetStatus(ctypes.byref(camera_status))
             self.__check_success(error_value, "Get Camera Status")
             while (camera_status.value != DRV_IDLE): 
                 error_value = self.andor_dll.GetStatus(ctypes.byref(camera_status))
                 self.__check_success(error_value, "Get Camera Status")
-
+            
             # Get the image data from the camera
             size = ctypes.c_int(self.number_x_pixels*self.number_y_pixels)
             image_pointer = ctypes.cast(ctypes.create_string_buffer( size.value*ctypes.sizeof(ctypes.c_long()) ),ctypes.POINTER(ctypes.c_long))
             error_value = self.andor_dll.GetAcquiredData(image_pointer, size)
             self.__check_success(error_value, "Get Acquired Data")
-
-            # Transfer the image from a pointer to a numpy array
-            image = np.zeros((self.number_y_pixels,self.number_x_pixels))
-            for x in range(self.number_x_pixels):
-                for y in range(self.number_y_pixels):
-                    image[y,x] = image_pointer[x + y*self.number_x_pixels]
             
-            return image
+            # Transfer the image from a pointer to a numpy array
+            #image = np.zeros((self.number_y_pixels,self.number_x_pixels))
+            #for x in range(self.number_x_pixels):
+            #    for y in range(self.number_y_pixels):
+            #        image[y,x] = image_pointer[x + y*self.number_x_pixels]
+            #
+            image = np.ndarray((self.number_y_pixels, self.number_x_pixels), np.uint8, image_pointer)
+            imageout = copy.deepcopy(image).astype(float)
+            plt.imsave('filename.png', imageout, cmap=cm.gray)
+
+            image = copy.deepcopy(image_pointer).astype(float)
+            plt.imsave('filename1.png', image, cmap=cm.gray)
+
+            #data, width, height, depth = cam.get_image_data()
+            #frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
+            #frameout = copy.deepcopy(frame).astype(float)
+            
+            self.image = image
 
     
     def __acquire_NI_DAQ(self):
@@ -315,7 +345,7 @@ class data_acqusition(object):
     		print('Press anything and enter to exit...')
     		input()
     		exit()
-    	return voltage
+    	self.voltage = voltage
     
     def __acquire_IC(self):
     	return # TODO
@@ -323,11 +353,11 @@ class data_acqusition(object):
     def shut_down(self):
         """Shut down the appropriate data acquisition hardware
         """
-        if (self.device == "Andor"):
+        if (self.device == DAQ_DEVICES[0]):    # if the device name is "Andor"
             self.__shut_down_andor()
-        elif (self.device == "NI DAQ"):
+        elif (self.device == DAQ_DEVICES[1]): # if the device name is "NI_DAQ"
             self.__shut_down_NI_DAQ()
-        elif (self.device == "IC"):
+        elif (self.device == DAQ_DEVICES[2]):     # if the device name is "IC"
             self.__shut_down_IC()
     
     def __shut_down_andor(self):

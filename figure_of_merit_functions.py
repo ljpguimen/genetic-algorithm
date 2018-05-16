@@ -9,6 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import copy
 
+import matplotlib.cm as cm
+
 def rgb2gray(rgb):
 	'''Convert the 3-channel rgb image into grayscale
 	'''
@@ -17,7 +19,7 @@ def rgb2gray(rgb):
 	return gray
 
 
-def ic_FOM(frameout, num):
+def ic_FOM(frameout, fom_num):
 
 	imgray = rgb2gray(frameout) # convert rgb image into grayscale
 	
@@ -26,7 +28,7 @@ def ic_FOM(frameout, num):
 		print('Image saturated with %d pixels'%satu)
 		return 0
 	else:
-		if num == 1:
+		if fom_num == 1:
 			#FOM 1
 			I = abs(imgray)**2
 			x = np.arange(imgray.shape[1]).astype(float)
@@ -40,7 +42,7 @@ def ic_FOM(frameout, num):
 			fom = (1-np.sum(imgray[r>=r0**2]) / np.sum(imgray) ) * np.sum(imgray[r<r0**2])
 			y_peak, x_peak = np.unravel_index(imgray.argmax(), imgray.shape) # find the target position for FOM calculation, here the maximum point is the target position
 	
-		if num == 2:
+		if fom_num == 2:
 			#FOM2 (Image Moment)
 			x_peak = 520
 			y_peak = 554
@@ -55,25 +57,25 @@ def ic_FOM(frameout, num):
 			fom[y_peak,x_peak]=0
 			fom = np.sum(fom)
 
-		if num == 3:
+		if fom_num == 3:
 			#FOM3
 			fom = np.sum(imgray**2);
 
-		if num == 4:
+		if fom_num == 4:
 			#FOM4
 			fom = np.sum(imgray);
 
 		print(frameout.max(), fom)
 		return fom
 
-def NI_DAQ_FOM(voltage, num):
+def NI_DAQ_FOM(voltage, fom_num):
 	"""This is the figure of merit function for the NI_DAQ single voltage hardware
 	
 	Parameters
     ----------
     voltage: voltage, variable type unknown -> maybe float
         the averaged voltage read by the NI DAQ hardware
-    num : number, integer
+    fom_num : figure of merit number, integer
         This determines which figure of merit function to run
 	
 	Returns
@@ -83,9 +85,12 @@ def NI_DAQ_FOM(voltage, num):
     """
 	
 	# Return the positive voltage
-	if num == 1:
+	if fom_num == 1:
 		return voltage
 
 	#Return the negative voltage
-	if num == 2:
+	if fom_num == 2:
 		return -voltage
+
+def Andor_FOM(image, fom_num):
+    plt.imsave('figure_of_merit.png', image, cmap=cm.gray)

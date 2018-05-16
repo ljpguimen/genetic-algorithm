@@ -24,7 +24,7 @@ def write_adf(person, filename):
     """
     
     array = person.genes
-    with open(filename + '.adf', 'w') as fileout:   # open the file to write values to
+    with open(filename, 'w') as fileout:   # open the file to write values to
         tsvwriter = csv.writer(fileout, delimiter='\t') # write to the given file with values separated by tabs
         tsvwriter.writerow(['@ASCII_DATA_FILE'])    # start of the header
         tsvwriter.writerow(['NCurves=1'])   # number of genes which are output

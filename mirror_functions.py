@@ -15,13 +15,14 @@ write_to_mirror() -- organizes genes and makes sure they will not break the mirr
 """
 
 # TODO get rid of labView
-# TODO plot the mirror using plot functions
 
 #import pyvisa   # Use this when using the pyvisa code in send_to_board
 import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
 import numpy as np  # general useful python library
 
 import ctypes   # used when using python as a wrapper for c functions
+
+import matplotlib.pyplot as plt
 
 PCI_BOARDS = [['PXI4::5::INSTR'], ['PXI4::4::INSTR']]   # These are the addresses given in NI-MAX or on Device manager
 # the top row values are the addresses of actuators 0-18 and the bottom values are the addresses of the actuators 19-36
@@ -56,7 +57,9 @@ class actuator_array(object):
                     [32,17, 6, 7, 8, 9,22],
                     [-1,33,18,19,20,21,-1],
                     [-1,-1,34,35,36,-1,-1]]
-        
+
+        self.dm_array = dm_array
+
         dm_actuator_neighbors = []      # initialize the empty list of neighboring actuators
 
         # The nested for loops go through the entire array and determine which actuators 
@@ -108,6 +111,67 @@ class actuator_array(object):
                         [19,35],[19,36],[20,21],[20,35],[20,36],[21,22],[21,36],[22,23],[23,24],[24,25],[25,26],
                         [27,28],[28,29],[29,30],[30,31],[31,32],[32,33],[33,34],[34,35],[35,36]]
         """
+
+        def plot_voltages(self, voltages):
+            """Plots what a set of voltages look like on the mirror
+            
+            Parameters
+            ----------
+            voltages : voltages, numpy array
+                This is an array of voltages sen to the mirror in the same form as voltage genes
+            """
+            mirror = self.voltages_to_mirror(voltages)  # convert the voltages to a 2d array which looks like the mirror
+            plt.imshow(mirror)  # plot it
+            plt.show()
+        
+        def voltages_to_mirror(self, voltages):
+            """Converts a numpy array of voltages to a 2d numpy array of which has the voltages at the correct indices of the DM
+            
+            Parameters
+            ----------
+            voltages : voltages, numpy array
+                This is an array of voltages sen to the mirror in the same form as voltage genes
+
+            Returns
+            -------
+            mirror : mirror, 2d numpy array
+                This is the set of voltages applied to the mirror in a 2d numpy array which looks like the DM
+            """
+
+            mirror = np.zeros_like(self.dm_array, dtype='float')    # initialize a 2d numpy array which looks like self.dm_array
+            # loop through each of the voltage indices and each of the mirror indices
+            for index in range(voltages.size):
+                for row_i in range(len(self.dm_array)):
+                    for col_j in range(len(self.dm_array[row_i])):   
+                        if dm_array[row_i][col_j] != 1:     # make sure the index at (i,j) is represents a real actuator
+                            if (self.dm_array[row_i][col_j] == index):  # if the mirror index is the same as the voltage index
+                                mirror[row_i][col_j] = voltages[index]  # set the mirror voltage equal to the voltage array index
+            return mirror
+
+        def mirror_to_voltages(self, mirror):
+            """Converts a 2d numpy array of which has the voltages at the correct indices of the DM to a list of voltages
+            
+            Parameters
+            ----------
+            mirror : mirror, 2d numpy array
+                This is the set of voltages applied to the mirror in a 2d numpy array which looks like the DM
+
+            Returns
+            -------
+            voltages : voltages, numpy array
+                This is an array of voltages sen to the mirror in the same form as voltage genes
+            """
+            voltages = np.empty(37, 'float', 'C')   # initialize voltage array
+            # loop through each of the voltage indices and each of the mirror indices
+            for index in range(voltages.size):
+                for row_i in range(len(self.dm_array)):
+                    for col_j in range(len(self.dm_array[row_i])):   
+                        if dm_array[row_i][col_j] != 1:     # make sure the index at (i,j) is represents a real actuator
+                            if (self.dm_array[row_i][col_j] == index):  # if the mirror index is the same as the voltage index
+                                voltages[index] = mirror[row_i][col_j]  # set the voltage value of the mirror to the voltage array
+            return voltages
+        
+
 
     def fits_mirror(self,genes):
         """Determine if a person breaks the mirror
@@ -233,8 +297,8 @@ def write_to_mirror(genes, dm_actuators):
         within_range = True and (genes[i] >= 0) and (genes[i] <= MAX_VOLTAGE) # check that the voltages are between 0 and 250
     if within_range:    # if all of the genes are within the correct range
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
-            genes = genes * VOLTAGE_MULTIPLIER # multiply each gene by some mirror constant to get the voltages sent to the mirror
-            voltage_array = array_conversion(genes) # change the mapping of the indices
+            applied_voltages = genes * VOLTAGE_MULTIPLIER # multiply each gene by some mirror constant to get the voltages sent to the mirror
+            voltage_array = array_conversion(applied_voltages) # change the mapping of the indices
             send_to_board(genes[:19], genes[19:])
         else:
             print("Error: Tried writing the genes to the mirror, but they would've broken it")
