@@ -5,7 +5,7 @@ change_value() -- Change any variable value in the program utilizing user input.
 change_others() -- This function checks if the user wants to change any other variables.
 initialize() -- This function contains all default values and defines all initial variables.
 """
-# TODO input the data acquisition device
+# TODO fix the data acquisition device
 import msvcrt
 import file_functions as file_f
 
@@ -129,6 +129,8 @@ def initialize():
     num_children = int(initialization_variables[6])          # number of children in loop iterations
     mutation_percentage = int(initialization_variables[7])    # if you want 20% mutation, enter 20
 
+    data_acquisition_device = initialization_variables[8]
+
     if not (init_voltage is None) and not (filename is None):
         print('Error: You have both an initial voltage and a filename to read from')
 
@@ -140,6 +142,7 @@ def initialize():
     print('\tFilename to read from: ', filename)
     print('\tInitial voltage of starting parent: ', init_voltage, '\n')
     print('\tMutation percentage: ', mutation_percentage, '\n')
+    print('\tData acquisition device: ', data_acquisition_device, '\n')
     print('Would you like to change any of these values?\nEnter "y" or "n"')
     print('Note: the locations of all important variables are in the README.txt file')
     keyboard_input = input()    # get input from the user
@@ -151,6 +154,7 @@ def initialize():
             print('To change the number of children, enter "children"')
             print('To change the mutation percentage, enter "mutation percentage"')
             print('To change the filename or initial voltage, enter "init setting"')
+            print('To change the data acquisition device, enter "daq"')
             print('To change nothing, enter "none"')
             key_input = input() # get input from the user
             if key_input == 'initial parents':  # determine what the user input
@@ -175,7 +179,13 @@ def initialize():
                     break
             elif key_input == 'mutation percentage':   # determine what the user input
                 print('You are changing the mutation percentage')
-                num_children = change_value('int', 0, 30)   # change the variable's value
+                mutation_percentage = change_value('int', 0, 30)   # change the variable's value
+                if not change_others(): # determine if the user wants to change any other parameters
+                    break
+            elif key_input == 'daq':   # determine what the user input
+                print('You are changing the data acquisition device')
+                print('The options are "Andor", "NI DAQ", or "IC"')
+                data_acquisition_device = change_value('string')   # change the variable's value
                 if not change_others(): # determine if the user wants to change any other parameters
                     break
             elif key_input == 'init setting':   # determine what the user input
@@ -207,7 +217,7 @@ def initialize():
                 break
             else:
                 print('You did not enter a valid command')
-    return num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage
+    return num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage, data_acquisition_device
 
 if __name__ == "__main__":
     print('You meant to run GeneticAlgorithm.py')

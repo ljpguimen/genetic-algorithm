@@ -58,7 +58,7 @@ def genetic_algorithm():
 	print('You are running the genetic algorithm')
 
 	#This function sets all of the values of the number of parents, children, and mutation amount
-	num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage = initialization_f.initialize()
+	num_genes, num_init_parents, num_init_children, init_voltage, filename, num_parents, num_children, mutation_percentage, data_acquisition_device = initialization_f.initialize()
 	"""Note: To change the default values, go into genetic_algorithm.ini"""
 
 	print('\nNOTE: LabView must be open in order to run the program\n')
@@ -79,7 +79,7 @@ def genetic_algorithm():
 	print('Starting...')
 	start_time = time.time()    # determine the time when the algorithm starts
 	dm_actuators = mirror_f.actuator_array() # initialize the class to determine if actuator voltages break the mirror or not
-	device = data_acq_f.data_acqusition("Andor")	# open and initialize the data acquisition device being used
+	device = data_acq_f.data_acqusition(data_acquisition_device)	# open and initialize the data acquisition device being used
 
 	iteration_number = 0
 

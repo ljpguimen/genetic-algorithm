@@ -62,7 +62,7 @@ class data_acqusition(object):
             This is a string which denotes which function returned this error value
         """
         if (error_value != DRV_SUCCESS):    # if the error value wasn't success
-            print(function_name,"Error", error_value)
+            print("Andor", function_name,"Error", error_value)
             exit()
 
     def __initialize_andor(self, initialize_array):

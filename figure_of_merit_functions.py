@@ -4,8 +4,6 @@ Created on Wed March 28 2018
 @author Yong Ma, yongm@umich.edu
 '''
 
-# TODO comment the ic capture code
-
 #from pyicic.IC_ImagingControl import *
 import numpy as np 
 import matplotlib.pyplot as plt
