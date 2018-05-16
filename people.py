@@ -11,12 +11,12 @@ child_group() -- A container for multiple children
 WAITING_TIME = 0.01 # seconds between writing to the mirror and starting the figure of merit function
 
 import numpy as np
-import math
-import time
-import mirror_functions as mirror_f
-import file_functions as file_f
-import figure_of_merit_functions as figure_of_merit_f
-import operator
+import math     # this library has math functions like sine and cosine
+import time     # used to make the program sleep for a few seconds
+import mirror_functions as mirror_f     # this contains information and functions relating to the DM
+import file_functions as file_f     # this is used to read and write data to files
+import figure_of_merit_functions as figure_of_merit_f   # this is used to calculate figures of merit
+import operator # this is used for sorting figures of merit
 
 class person(object):
 	"""A person is the object written to the mirror actuators. 

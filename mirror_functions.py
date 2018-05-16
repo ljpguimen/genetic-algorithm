@@ -16,14 +16,12 @@ write_to_mirror() -- organizes genes and makes sure they will not break the mirr
 
 # TODO get rid of labView
 # TODO plot the mirror using plot functions
-# TODO get rid of any hard coded values
 
 #import pyvisa   # Use this when using the pyvisa code in send_to_board
-#import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
-import numpy as np
+import win32com.client  # Use this when using the LabVIEW VI in send_to_board # Python ActiveX Client
+import numpy as np  # general useful python library
 
-from ctypes import *
-import os
+import ctypes   # used when using python as a wrapper for c functions
 
 PCI_BOARDS = [['PXI4::5::INSTR'], ['PXI4::4::INSTR']]   # These are the addresses given in NI-MAX or on Device manager
 # the top row values are the addresses of actuators 0-18 and the bottom values are the addresses of the actuators 19-36
@@ -33,6 +31,8 @@ ACTUATOR_ADDRESSES = [[0x34, 0x54, 0x28, 0x38, 0x08, 0x04, 0x24, 0x50, 0x58, 0x2
 MAX_DIFF = 20 # maximum difference in voltage between neighboring actuators
 
 MAX_VOLTAGE = 100 # maximumm voltage an acuator can have
+
+VOLTAGE_MULTIPLIER = 2.65   # this is the constant used to multiply 
 
 class actuator_array(object):
     """actuator_array is an object that represents deformable mirror actuators and checks
@@ -68,7 +68,7 @@ class actuator_array(object):
         # logging the neighbor pairs of each actuator. 
         for row_i in range(len(dm_array)):
             for col_j in range(len(dm_array[row_i])):   
-                if abs(row_i-3) + abs(col_j-3) < 5:     #make sure the index at (i,j) is close enough to the center to represent a real actuator
+                if dm_array[row_i][col_j] != 1:     # make sure the index at (i,j) is represents a real actuator
                     start_actuator = dm_array[row_i][col_j]     # this will be the actuator examined in the for loop
                     # if j is not in the last column and the east neighbor isn't -1, add these neighbors to the list 
                     if col_j !=len(dm_array[row_i])-1:
@@ -94,6 +94,7 @@ class actuator_array(object):
         
         # make the neighbor list an accessible attribute of the object actuator_array
         self.dm_actuator_neighbors = dm_actuator_neighbors  # make the neighbors list an attribute
+
         """ This is brute force specific to the current 37 actuator mirror
         # array which contains all actuator neighbor pairs
         dm_neighbors = [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8],[1,2],[1,3],[1,7],[1,8],[1,9],[1,10],
@@ -232,7 +233,7 @@ def write_to_mirror(genes, dm_actuators):
         within_range = True and (genes[i] >= 0) and (genes[i] <= MAX_VOLTAGE) # check that the voltages are between 0 and 250
     if within_range:    # if all of the genes are within the correct range
         if  dm_actuators.fits_mirror(genes): # if the genes don't break the mirror
-            genes = genes * 2.65  # multiply each voltage by 2.65 because this is a constant for Xinetics mirrors
+            genes = genes * VOLTAGE_MULTIPLIER # multiply each gene by some mirror constant to get the voltages sent to the mirror
             voltage_array = array_conversion(genes) # change the mapping of the indices
             send_to_board(genes[:19], genes[19:])
         else:
@@ -245,8 +246,8 @@ def write_to_mirror(genes, dm_actuators):
 
 
 if __name__ == "__main__":
-	print('You meant to run GeneticAlgorithm.py')
+    print('You meant to run GeneticAlgorithm.py')
 
-	#dm_actuators = actuator_array()
-	#genes = np.zeros(37)
-	#write_to_mirror(genes,dm_actuators)
+    #dm_actuators = actuator_array()
+    #genes = np.zeros(37)
+    #write_to_mirror(genes,dm_actuators)

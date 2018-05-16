@@ -9,7 +9,7 @@ initialize() -- This function contains all default values and defines all initia
 import msvcrt
 import file_functions as file_f
 
-INITIALIZATION_FILE = "genetic_algorith.ini"
+INITIALIZATION_FILE = "\\genetic_algorithm.ini"
 
 def change_value(datatype, lowerbound = None, upperbound = None):
     """Change any variable value in the program utilizing user input.

@@ -7,9 +7,7 @@ send_genes() -- sets constant voltages on the mirror which are determined within
 test_actuators -- test the voltages for individual actuators
 """
 
-#TODO comment this file
-
-import numpy as np  # used for 
+import numpy as np  # general useful python library
 
 import file_functions as file_f     # used to read from files
 import mirror_functions as mirror_f     # used to write voltages to the mirror

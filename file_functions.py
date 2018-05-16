@@ -8,11 +8,9 @@ import csv
 import numpy as np
 import time
 import os
-#TODO comment the rest of the file
 
 MIRROR_GRAPH_FOLDER = '\saved_mirror_graphs\\'    # directory for mirror graphs
 MIRROR_VOLTAGES_FOLDER       = '\saved_mirrors\\'     # directory for mirror actuator files
-
 
 def write_adf(person, filename):
     """Write genes to a .adf file.
@@ -83,8 +81,11 @@ def write_figures_of_merit(figures_of_merit, filename):
 
 
 def read_initialization_variables(filename):
-	""" TODO comments"""
-	initialization_array = np.empty(0,'float')
+	"""This function reads in the initialization variables from a file.
+    
+    It reads in the third element of every even numbered line using a space separated format. The values are all strings
+    """
+	initialization_array = np.empty(0,'float')  # initialize a numpy array of size 0
 	directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
 	with open(directory_path + filename, 'r') as filein:    # open the file to be read from
 		tsvreader = csv.reader(filein, delimiter = " ")    # make the values space separated

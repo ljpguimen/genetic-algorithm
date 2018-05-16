@@ -4,8 +4,8 @@ Functions:
 plot_performance() -- plots the figures of merit of the given people
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy as np  # general useful python library
+import matplotlib.pyplot as plt # plotting library
 
 def plot_performance(iteration_number, figures_of_merit):
     """plot the figures of merit for the current generation with the previous generations
