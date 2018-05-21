@@ -1,0 +1,16 @@
+# Exclude python 3 bytecode
+*.pyc
+__pycache__/
+
+
+
+# This means exclude everything in Andor/
+Andor/*
+
+# Include these files which would have been excluded
+!'Andor properties.ini'
+!Andor_python.py
+
+# Include any .png files
+!*.png
+
