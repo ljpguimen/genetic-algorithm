@@ -71,7 +71,7 @@ class actuator_array(object):
         # logging the neighbor pairs of each actuator. 
         for row_i in range(len(dm_array)):
             for col_j in range(len(dm_array[row_i])):   
-                if dm_array[row_i][col_j] != 1:     # make sure the index at (i,j) is represents a real actuator
+                if dm_array[row_i][col_j] != -1:     # make sure the index at (i,j) is represents a real actuator
                     start_actuator = dm_array[row_i][col_j]     # this will be the actuator examined in the for loop
                     # if j is not in the last column and the east neighbor isn't -1, add these neighbors to the list 
                     if col_j !=len(dm_array[row_i])-1:
@@ -143,7 +143,7 @@ class actuator_array(object):
             for index in range(voltages.size):
                 for row_i in range(len(self.dm_array)):
                     for col_j in range(len(self.dm_array[row_i])):   
-                        if dm_array[row_i][col_j] != 1:     # make sure the index at (i,j) is represents a real actuator
+                        if dm_array[row_i][col_j] != -1:     # make sure the index at (i,j) is represents a real actuator
                             if (self.dm_array[row_i][col_j] == index):  # if the mirror index is the same as the voltage index
                                 mirror[row_i][col_j] = voltages[index]  # set the mirror voltage equal to the voltage array index
             return mirror
@@ -166,7 +166,7 @@ class actuator_array(object):
             for index in range(voltages.size):
                 for row_i in range(len(self.dm_array)):
                     for col_j in range(len(self.dm_array[row_i])):   
-                        if dm_array[row_i][col_j] != 1:     # make sure the index at (i,j) is represents a real actuator
+                        if dm_array[row_i][col_j] != -1:     # make sure the index at (i,j) is represents a real actuator
                             if (self.dm_array[row_i][col_j] == index):  # if the mirror index is the same as the voltage index
                                 voltages[index] = mirror[row_i][col_j]  # set the voltage value of the mirror to the voltage array
             return voltages
@@ -312,6 +312,6 @@ def write_to_mirror(genes, dm_actuators):
 if __name__ == "__main__":
     print('You meant to run GeneticAlgorithm.py')
 
-    #dm_actuators = actuator_array()
+    dm_actuators = actuator_array()
     #genes = np.zeros(37)
     #write_to_mirror(genes,dm_actuators)
