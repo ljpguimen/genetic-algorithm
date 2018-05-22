@@ -92,8 +92,7 @@ class data_acqusition(object):
         
         # Load the atmcd64.dll file 
         directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
-        print(directory_path + '\\Andor\\atmcd64d.dll')
-        self.andor_dll = ctypes.cdll.LoadLibrary(directory_path + '\\Andor\\atmcd64d.dll')  # load the andor dll from the directory Andor/
+        self.andor_dll = ctypes.windll.LoadLibrary(directory_path + '\\Andor\\atmcd32d.dll')  # load the andor dll from the directory Andor/
         
         
         # Initialize camera
@@ -364,7 +363,7 @@ class data_acqusition(object):
     def __shut_down_IC(self):
         return # TODO
 
-"""original IC image capture
+#original IC image capture
 def ic():
 
 
@@ -414,10 +413,12 @@ def ic():
     ic_ic.close_library()
     
     return frameout
-"""
+
 
 
 if __name__ == "__main__":
-    device = data_acqusition("Andor", 1)
-    device.acquire()
-    device.shut_down()
+
+    ic()
+    # device = data_acqusition("Andor", 1)
+    # device.acquire()
+    # device.shut_down()
