@@ -15,7 +15,7 @@ import file_functions as file_f     # use this for reading and writing to files
 import os   # this gives information about the current working directory
 
 # These libraries are needed for IC cameras
-#from pyicic.IC_ImagingControl import *
+from pyicic.IC_ImagingControl import *
 import copy
 
 # This is needed for the NI DAQ
@@ -92,6 +92,7 @@ class data_acqusition(object):
         
         # Load the atmcd64.dll file 
         directory_path = os.path.dirname(os.path.abspath(__file__)) # get the current directory's path
+        print(directory_path + '\\Andor\\atmcd64d.dll')
         self.andor_dll = ctypes.cdll.LoadLibrary(directory_path + '\\Andor\\atmcd64d.dll')  # load the andor dll from the directory Andor/
         
         
