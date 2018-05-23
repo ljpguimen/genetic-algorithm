@@ -255,10 +255,78 @@ class data_acqusition(object):
 
         cam.open()
 
-        #TODO set properties
+        print("Would you like to set all of the camera initialization values yourself, or use the IC properties.ini file?")
+        print('Enter either "set" for setting all of the values or "ini" for the .ini file')
+        while True:
+            init = input()
+            if (init == "set"):
+                set_all = True
+                return
+            elif (init == "ini"):
+                set_all = False
+                return
+            else:
+                print("You didn't enter 'set' or 'ini'. Try again.")
+
         cam.reset_properties()
+        cam_properties = cam.list_property_names()
+        print("Note: this only goes through the camera properties available for this specific camera.")
+        for attribute_index in range(len(cam_properties)):
+            type_of_attribute = type(getattr(cam,cam_properties[attribute_index]))
+            if (getattr(cam,cam_properties[attribute_index]).available == True):
+                if (set_all == True):   # if they want to go through everything
+                    print("You are setting the ", getattr(cam,cam_properties[attribute_index]))
+                    print("The range of values you can set this to is ", getattr(cam,cam_properties[attribute_index]).range)
+                    print("What would you like to set this property to? Enter an ", type_of_attribute)
+                    while True:
+                        if (type_of_attribute is int):
+                            change_value = int(input())
+                        elif(type_of_attribute is float):
+                            change_value = float(input())
+                        elif(type_of_attribute is str):
+                            change_value = str(input())
+                        print("You entered", change_value, "\nIs this okay? (enter 'y' or 'n')")
+                        input_is_good = input()
+                        if (input_is_good == 'y'):
+                            break
+                        elif(input_is_good == 'n'):
+                            print("Type in what you'd like to change this property to instead")
+                        else:
+                            print("You didn't enter a y or an n. Enter what value you'd like to change the property to again.")
+                else:
+                    if (initialize_array[attribute_index] == "auto"):
+                        if (getattr(cam,cam_properties[attribute_index]).auto_available == True):
+                            getattr(cam,cam_properties[attribute_index]).auto = True
+                        else:
+                            print("Auto setting unavailable for ", getattr(cam,cam_properties[attribute_index]))
+                            print("Did not set ", getattr(cam,cam_properties[attribute_index]))
+                    elif (initialize_array[attribute_index] == "none"):
+                        print("Did not set ", getattr(cam,cam_properties[attribute_index]))
+                    else:
+                        getattr(cam,cam_properties[attribute_index]).value = initialize_array[attribute_index]
+                        print("Set the camera ", getattr(cam,cam_properties[attribute_index]), " to ", getattr(cam,cam_properties[attribute_index]).value)
+
+        formats = cam.list_video_formats()
+        print("These are the available video formats:")
+        print(formats)
+        print("Please select an IC camera to use by inputting the index of the camera.")
+        print("The indices go from 0 to ", len(formats)-1)
+        while True:
+            index = int(input())
+            if ((index <= len(formats)-1) and (index >= 0)):
+                cam = ic_ic.set_video_format(formats[index])
+                break
+            else:
+                print("You didn't enter a correct index.")
     
-    
+        cam.enable_continuous_mode(True)        # image in continuous mode
+        cam.start_live(show_display=False)       # start imaging
+
+        cam.enable_trigger(True)                # camera will wait for trigger
+        if not cam.callback_registered:
+            cam.register_frame_ready_callback() # needed to wait for frame ready callback
+
+
     def figure_of_merit(self):
         """Determine the figure of merit using the selected device
 
@@ -357,7 +425,19 @@ class data_acqusition(object):
         self.voltage = voltage
     
     def __acquire_IC(self):
-        return # TODO
+        cam.reset_frame_ready() 
+        
+        cam.send_trigger()
+
+        cam.wait_til_frame_ready(1000)              # wait for frame ready due to trigger
+
+        data, width, height, depth = cam.get_image_data()
+        frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
+        frameout = copy.deepcopy(frame).astype(float)
+        
+        del frame
+        self.frameout = frameout
+        
     
     def shut_down(self):
         """Shut down the appropriate data acquisition hardware
@@ -473,7 +553,9 @@ def ic():
 
 if __name__ == "__main__":
 
-    ic()
+    #ic()
+    device = data_acqusition("IC", 1)
+    device.shut_down()
     # device = data_acqusition("Andor", 1)
     # device.acquire()
     # device.shut_down()
