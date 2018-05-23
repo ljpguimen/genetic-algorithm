@@ -237,10 +237,10 @@ class data_acqusition(object):
     
     def __initialize_IC(self, initialize_array):
         """TODO comments"""
-        ic_ic = IC_ImagingControl()
-        ic_ic.init_library()
+        self.ic_ic = IC_ImagingControl()
+        self.ic_ic.init_library()
 
-        cam_names = ic_ic.get_unique_device_names()
+        cam_names = self.ic_ic.get_unique_device_names()
         print("These are the available cameras:")
         print(cam_names)
         print("Please select an IC camera to use by inputting the index of the camera.")
@@ -248,12 +248,12 @@ class data_acqusition(object):
         while True:
             index = int(input())
             if ((index <= len(cam_names)-1) and (index >= 0)):
-                cam = ic_ic.get_device(cam_names[index])
+                self.cam = self.ic_ic.get_device(cam_names[index])
                 break
             else:
                 print("You didn't enter a correct index.")
 
-        cam.open()
+        self.cam.open()
 
         print("Would you like to set all of the camera initialization values yourself, or use the IC properties.ini file?")
         print('Enter either "set" for setting all of the values or "ini" for the .ini file')
@@ -261,30 +261,26 @@ class data_acqusition(object):
             init = input()
             if (init == "set"):
                 set_all = True
-                return
+                break
             elif (init == "ini"):
                 set_all = False
-                return
+                break
             else:
                 print("You didn't enter 'set' or 'ini'. Try again.")
 
-        cam.reset_properties()
-        cam_properties = cam.list_property_names()
+        self.cam.reset_properties()
+        cam_properties = self.cam.list_property_names()
         print("Note: this only goes through the camera properties available for this specific camera.")
+
         for attribute_index in range(len(cam_properties)):
-            type_of_attribute = type(getattr(cam,cam_properties[attribute_index]))
-            if (getattr(cam,cam_properties[attribute_index]).available == True):
+            if (getattr(self.cam,cam_properties[attribute_index]).available == True):
                 if (set_all == True):   # if they want to go through everything
-                    print("You are setting the ", getattr(cam,cam_properties[attribute_index]))
-                    print("The range of values you can set this to is ", getattr(cam,cam_properties[attribute_index]).range)
-                    print("What would you like to set this property to? Enter an ", type_of_attribute)
+                    print("You are setting the", cam_properties[attribute_index])
+                    print("Its current value is ", getattr(self.cam,cam_properties[attribute_index]).value)
+                    print("The range of values you can set this to is ", getattr(self.cam,cam_properties[attribute_index]).range)
+                    print("What would you like to set this property to?")
                     while True:
-                        if (type_of_attribute is int):
-                            change_value = int(input())
-                        elif(type_of_attribute is float):
-                            change_value = float(input())
-                        elif(type_of_attribute is str):
-                            change_value = str(input())
+                        change_value = input()
                         print("You entered", change_value, "\nIs this okay? (enter 'y' or 'n')")
                         input_is_good = input()
                         if (input_is_good == 'y'):
@@ -295,37 +291,40 @@ class data_acqusition(object):
                             print("You didn't enter a y or an n. Enter what value you'd like to change the property to again.")
                 else:
                     if (initialize_array[attribute_index] == "auto"):
-                        if (getattr(cam,cam_properties[attribute_index]).auto_available == True):
-                            getattr(cam,cam_properties[attribute_index]).auto = True
+                        if (getattr(self.cam,cam_properties[attribute_index]).auto_available == True):
+                            getattr(self.cam,cam_properties[attribute_index]).auto = True
                         else:
-                            print("Auto setting unavailable for ", getattr(cam,cam_properties[attribute_index]))
-                            print("Did not set ", getattr(cam,cam_properties[attribute_index]))
+                            print("Auto setting unavailable for", cam_properties[attribute_index])
+                            print("Did not set", cam_properties[attribute_index])
                     elif (initialize_array[attribute_index] == "none"):
-                        print("Did not set ", getattr(cam,cam_properties[attribute_index]))
+                        print("Did not set", cam_properties[attribute_index])
                     else:
-                        getattr(cam,cam_properties[attribute_index]).value = initialize_array[attribute_index]
-                        print("Set the camera ", getattr(cam,cam_properties[attribute_index]), " to ", getattr(cam,cam_properties[attribute_index]).value)
+                        if (type(getattr(self.cam,cam_properties[attribute_index]).value) == int):
+                            getattr(self.cam,cam_properties[attribute_index]).value = int(initialize_array[attribute_index])
+                        if (type(getattr(self.cam,cam_properties[attribute_index]).value) == float):
+                            getattr(self.cam,cam_properties[attribute_index]).value = float(initialize_array[attribute_index])
+                        print("Set the camera", cam_properties[attribute_index], "to", getattr(self.cam,cam_properties[attribute_index]).value, "within the range", getattr(self.cam,cam_properties[attribute_index]).range)
 
-        formats = cam.list_video_formats()
+        formats = self.cam.list_video_formats()
         print("These are the available video formats:")
         print(formats)
-        print("Please select an IC camera to use by inputting the index of the camera.")
+        print("Please select video format to use by inputting the index of the format.")
         print("The indices go from 0 to ", len(formats)-1)
         while True:
             index = int(input())
             if ((index <= len(formats)-1) and (index >= 0)):
-                cam = ic_ic.set_video_format(formats[index])
+                self.cam.set_video_format(formats[index])
                 break
             else:
                 print("You didn't enter a correct index.")
     
-        cam.enable_continuous_mode(True)        # image in continuous mode
-        cam.start_live(show_display=False)       # start imaging
+        self.cam.enable_continuous_mode(True)        # image in continuous mode
+        self.cam.start_live(show_display=False)       # start imaging
 
-        cam.enable_trigger(True)                # camera will wait for trigger
-        if not cam.callback_registered:
-            cam.register_frame_ready_callback() # needed to wait for frame ready callback
-
+        self.cam.enable_trigger(True)                # camera will wait for trigger
+        if not self.cam.callback_registered:
+            self.cam.register_frame_ready_callback() # needed to wait for frame ready callback
+        print(self.cam.gain.value)
 
     def figure_of_merit(self):
         """Determine the figure of merit using the selected device
@@ -425,16 +424,16 @@ class data_acqusition(object):
         self.voltage = voltage
     
     def __acquire_IC(self):
-        cam.reset_frame_ready() 
+        self.cam.reset_frame_ready() 
         
-        cam.send_trigger()
+        self.cam.send_trigger()
 
-        cam.wait_til_frame_ready(1000)              # wait for frame ready due to trigger
+        self.cam.wait_til_frame_ready(1000)              # wait for frame ready due to trigger
 
-        data, width, height, depth = cam.get_image_data()
+        data, width, height, depth = self.cam.get_image_data()
         frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
         frameout = copy.deepcopy(frame).astype(float)
-        
+        self.cam.save_image(b"image.jpg", 1)
         del frame
         self.frameout = frameout
         
@@ -462,10 +461,10 @@ class data_acqusition(object):
     
     def __shut_down_IC(self):
         """TODO"""
-        cam.stop_live() # stop capturing video from the camera
-        cam.close() # shut down the camera
+        self.cam.stop_live() # stop capturing video from the camera
+        self.cam.close() # shut down the camera
 
-        ic_ic.close_library()   # stop accessing the IC dll
+        self.ic_ic.close_library()   # stop accessing the IC dll
 
 #original IC image capture
 def ic():
@@ -490,27 +489,6 @@ def ic():
     cam.open()
     cam.reset_properties()
 
-    """         camera
-                'brightness',
-                'contrast',
-                'hue',
-                'saturation',
-                'sharpness',
-                'gamma',
-                'colorenable',
-                'whitebalance',
-                'blacklightcompensation',
-                'gain'
-
-                video
-                'pan',
-                'tilt',
-                'roll',
-                'zoom',
-                'exposure',
-                'iris',
-                'focus'
-    """
     # change camera properties
     print(cam.list_property_names())         # ['gain', 'exposure', 'hue', etc...]
     cam.gain.auto = False                    # enable auto gain
@@ -538,7 +516,7 @@ def ic():
     data, width, height, depth = cam.get_image_data()
     frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
     frameout = copy.deepcopy(frame).astype(float)
-    
+    plt.imsave('figure_of_merit.png', frameout, cmap=cm.gray)
     del frame
     # print(frameout.max())
 
@@ -553,9 +531,11 @@ def ic():
 
 if __name__ == "__main__":
 
-    #ic()
-    device = data_acqusition("IC", 1)
+    # ic()
+    device = data_acqusition("IC", 4)
+    time.sleep(2)
+    device.figure_of_merit()
     device.shut_down()
-    # device = data_acqusition("Andor", 1)
+    # # device = data_acqusition("Andor", 1)
     # device.acquire()
     # device.shut_down()
