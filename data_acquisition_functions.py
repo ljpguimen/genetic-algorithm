@@ -432,7 +432,7 @@ def ic():
                 'focus'
     """
     # change camera properties
-    # print(cam.list_property_names())         # ['gain', 'exposure', 'hue', etc...]
+    print(cam.list_property_names())         # ['gain', 'exposure', 'hue', etc...]
     cam.gain.auto = False                    # enable auto gain
     
     cam.exposure.value = -5
@@ -440,6 +440,7 @@ def ic():
     # change camera settings
     formats = cam.list_video_formats()
     # print formats
+    print(formats)
     cam.set_video_format(formats[0])        # use first available video format
     cam.enable_continuous_mode(True)        # image in continuous mode
     cam.start_live(show_display=False)       # start imaging
