@@ -236,7 +236,27 @@ class data_acqusition(object):
         self.pci0VI = LabVIEW.getvireference(directory_path + '\\NI_DAQ\\get_average_photodiode_voltage.vi')    # get the path to the LabVIEW VI
     
     def __initialize_IC(self, initialize_array):
-        return # TODO
+        """TODO comments"""
+        ic_ic = IC_ImagingControl()
+        ic_ic.init_library()
+
+        cam_names = ic_ic.get_unique_device_names()
+        print("These are the available cameras:")
+        print(cam_names)
+        print("Please select an IC camera to use by inputting the index of the camera.")
+        print("The indices go from 0 to ", len(cam_names)-1)
+        while True:
+            index = int(input())
+            if ((index <= len(cam_names)-1) and (index >= 0)):
+                cam = ic_ic.get_device(cam_names[index])
+                break
+            else:
+                print("You didn't enter a correct index.")
+
+        cam.open()
+
+        #TODO set properties
+        cam.reset_properties()
     
     
     def figure_of_merit(self):
@@ -361,7 +381,11 @@ class data_acqusition(object):
         return
     
     def __shut_down_IC(self):
-        return # TODO
+        """TODO"""
+        cam.stop_live() # stop capturing video from the camera
+        cam.close() # shut down the camera
+
+        ic_ic.close_library()   # stop accessing the IC dll
 
 #original IC image capture
 def ic():
@@ -370,13 +394,43 @@ def ic():
     ic_ic = IC_ImagingControl()
     ic_ic.init_library()
 
-    # open first available camera device
     cam_names = ic_ic.get_unique_device_names()
-    # print(cam_names)
-    cam = ic_ic.get_device(cam_names[0])
+    print("These are the available cameras:")
+    print(cam_names)
+    print("Please select an IC camera to use by inputting the index of the camera.")
+    print("The indices go from 0 to ", len(cam_names)-1)
+    while True:
+        index = int(input())
+        if ((index <= len(cam_names)-1) and (index >= 0)):
+            cam = ic_ic.get_device(cam_names[index])
+            break
+        else:
+            print("You didn't enter a correct index.")
+
     cam.open()
     cam.reset_properties()
 
+    """         camera
+                'brightness',
+                'contrast',
+                'hue',
+                'saturation',
+                'sharpness',
+                'gamma',
+                'colorenable',
+                'whitebalance',
+                'blacklightcompensation',
+                'gain'
+
+                video
+                'pan',
+                'tilt',
+                'roll',
+                'zoom',
+                'exposure',
+                'iris',
+                'focus'
+    """
     # change camera properties
     # print(cam.list_property_names())         # ['gain', 'exposure', 'hue', etc...]
     cam.gain.auto = False                    # enable auto gain
@@ -407,10 +461,10 @@ def ic():
     del frame
     # print(frameout.max())
 
-    cam.stop_live()
-    cam.close()
+    cam.stop_live() # stop capturing video from the camera
+    cam.close() # shut down the camera
 
-    ic_ic.close_library()
+    ic_ic.close_library()   # stop accessing the IC dll
     
     return frameout
 
