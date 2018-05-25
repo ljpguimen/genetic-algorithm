@@ -241,6 +241,9 @@ class data_acqusition(object):
         self.ic_ic.init_library()
 
         cam_names = self.ic_ic.get_unique_device_names()
+        if (len(cam_names) ==0):
+            print("Error: No IC cameras connected to the computer.")
+            exit()
         print("These are the available cameras:")
         print(cam_names)
         print("Please select an IC camera to use by inputting the index of the camera.")
@@ -324,7 +327,9 @@ class data_acqusition(object):
         self.cam.enable_trigger(True)                # camera will wait for trigger
         if not self.cam.callback_registered:
             self.cam.register_frame_ready_callback() # needed to wait for frame ready callback
-        print(self.cam.gain.value)
+
+        self.width, self.height, self.depth, color_format = self.cam.get_image_description()
+        print(self.width, self.height, self.depth)
 
     def figure_of_merit(self):
         """Determine the figure of merit using the selected device
@@ -424,6 +429,10 @@ class data_acqusition(object):
         self.voltage = voltage
     
     def __acquire_IC(self):
+        cam_properties = self.cam.list_property_names()
+        for attribute_index in range(len(cam_properties)):
+            if (getattr(self.cam,cam_properties[attribute_index]).available == True):
+                print("Set the camera", cam_properties[attribute_index], "to", getattr(self.cam,cam_properties[attribute_index]).value, "within the range", getattr(self.cam,cam_properties[attribute_index]).range)
         self.cam.reset_frame_ready() 
         
         self.cam.send_trigger()
@@ -432,7 +441,21 @@ class data_acqusition(object):
 
         data, width, height, depth = self.cam.get_image_data()
         frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
+        plt.imshow(frame[:,:,0])
+        plt.colorbar()
+        plt.show()
+        plt.imshow(frame[:,:,1])
+        plt.colorbar()
+        plt.show()
+        plt.imshow(frame[:,:,2])
+        plt.colorbar()
+        plt.show()
+        print(frame.shape)
         frameout = copy.deepcopy(frame).astype(float)
+        plt.imshow(frameout)
+        plt.colorbar()
+        plt.show()
+
         self.cam.save_image(b"image.jpg", 1)
         del frame
         self.frameout = frameout
@@ -533,7 +556,6 @@ if __name__ == "__main__":
 
     # ic()
     device = data_acqusition("IC", 4)
-    time.sleep(2)
     device.figure_of_merit()
     device.shut_down()
     # # device = data_acqusition("Andor", 1)
