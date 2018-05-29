@@ -245,7 +245,7 @@ class data_acqusition(object):
         if (len(cam_names) ==0):
             print("Error: No IC cameras connected to the computer.")
             exit()
-        print("These are the available cameras:")
+        print("\nThese are the available cameras:")
         print(cam_names)
         print("Please select an IC camera to use by inputting the index of the camera.")
         print("The indices go from 0 to ", len(cam_names)-1)
@@ -259,7 +259,7 @@ class data_acqusition(object):
 
         self.cam.open()
 
-        print("Would you like to set all of the camera initialization values yourself, or use the IC properties.ini file?")
+        print("\nWould you like to set all of the camera initialization values yourself, or use the IC properties.ini file?")
         print('Enter either "set" for setting all of the values or "ini" for the .ini file')
         while True:
             init = input()
@@ -297,6 +297,7 @@ class data_acqusition(object):
                     if (initialize_array[attribute_index] == "auto"):
                         if (getattr(self.cam,cam_properties[attribute_index]).auto_available == True):
                             getattr(self.cam,cam_properties[attribute_index]).auto = True
+                            print("Set the camera", cam_properties[attribute_index], "to auto")
                         else:
                             print("Auto setting unavailable for", cam_properties[attribute_index])
                             print("Did not set", cam_properties[attribute_index])
@@ -310,7 +311,7 @@ class data_acqusition(object):
                         print("Set the camera", cam_properties[attribute_index], "to", getattr(self.cam,cam_properties[attribute_index]).value, "within the range", getattr(self.cam,cam_properties[attribute_index]).range)
 
         formats = self.cam.list_video_formats()
-        print("These are the available video formats:")
+        print("\nThese are the available video formats:")
         print(formats)
         print("Please select video format to use by inputting the index of the format.")
         print("The indices go from 0 to ", len(formats)-1)
@@ -438,11 +439,11 @@ class data_acqusition(object):
         self.cam.wait_til_frame_ready(1000)              # wait for frame ready due to trigger
 
         data, width, height, depth = self.cam.get_image_data()
-        frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
+        frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(self.height, self.width, self.depth))
         frameout = copy.deepcopy(frame)
-        # plt.imshow(frameout)
-        # plt.colorbar()
-        # plt.show()
+        plt.imshow(frameout)
+        plt.colorbar()
+        plt.show()
 
         # self.cam.save_image(b"image.jpg", 1)
         del frame
