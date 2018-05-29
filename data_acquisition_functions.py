@@ -6,7 +6,8 @@ ic() -- Grabs an image from an IC camera
 NI_DAQ_voltage() -- acquires a voltage from the NI hardware (usually connected to the lock-in amplifier)
 
 """
-
+# TODO comment ic stuff
+# TODO see if different video formats will need to be taken care of
 
 import figure_of_merit_functions as figure_of_merit_f
 
