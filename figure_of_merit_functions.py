@@ -24,6 +24,9 @@ def ic_FOM(frameout, fom_num):
 	imgray = rgb2gray(frameout) # convert rgb image into grayscale
 	
 	satu = imgray[imgray>254].shape[0]
+    # plt.imshow(frameout,cmap=plt.get_cmap('gray'))
+    # plt.colorbar()
+    # plt.savefig('figure_of_merit.png')
 	plt.imsave('figure_of_merit.png', frameout, cmap=cm.gray)
 	if satu > 0:
 		print('Image saturated with %d pixels'%satu)

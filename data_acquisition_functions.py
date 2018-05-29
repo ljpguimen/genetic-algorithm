@@ -328,8 +328,9 @@ class data_acqusition(object):
         if not self.cam.callback_registered:
             self.cam.register_frame_ready_callback() # needed to wait for frame ready callback
 
-        self.width, self.height, self.depth, color_format = self.cam.get_image_description()
-        print(self.width, self.height, self.depth)
+        self.width, self.height, depth, color_format = self.cam.get_image_description()
+        self.depth = depth // 8 # I have no idea why the library does this
+        self.acquire()
 
     def figure_of_merit(self):
         """Determine the figure of merit using the selected device
@@ -429,10 +430,6 @@ class data_acqusition(object):
         self.voltage = voltage
     
     def __acquire_IC(self):
-        cam_properties = self.cam.list_property_names()
-        for attribute_index in range(len(cam_properties)):
-            if (getattr(self.cam,cam_properties[attribute_index]).available == True):
-                print("Set the camera", cam_properties[attribute_index], "to", getattr(self.cam,cam_properties[attribute_index]).value, "within the range", getattr(self.cam,cam_properties[attribute_index]).range)
         self.cam.reset_frame_ready() 
         
         self.cam.send_trigger()
@@ -440,32 +437,13 @@ class data_acqusition(object):
         self.cam.wait_til_frame_ready(1000)              # wait for frame ready due to trigger
 
         data, width, height, depth = self.cam.get_image_data()
-        print("depth = ", depth)
-        frame_buffer = np.frombuffer(data)
-        frame_buffer = np.reshape(frame_buffer, (height, width, depth))
-        print("frame_buffer shape: ", frame_buffer.shape)
-        plt.imshow(frame_buffer)
-        plt.colorbar()
-        plt.show()
-        
-        arr = (ctypes.c_long * height * width * depth).from_address(addressof(data.contents))
-        frame_allocate = np.ndarray(buffer=arr,dtype=np.uint8,shape=(height, width, depth))
-        print("frame_allocate shape: ", frame_allocate.shape)
-        plt.imshow(frame_allocate)
-        plt.colorbar()
-        plt.show()
-
         frame = np.ndarray(buffer=data,dtype=np.uint8,shape=(height, width, depth))
-        print("frame shape: ", frame.shape)
-        plt.imshow(frame)
-        plt.colorbar()
-        plt.show()
-        frameout = copy.deepcopy(frame).astype(float)
-        plt.imshow(frameout)
-        plt.colorbar()
-        plt.show()
+        frameout = copy.deepcopy(frame)
+        # plt.imshow(frameout)
+        # plt.colorbar()
+        # plt.show()
 
-        self.cam.save_image(b"image.jpg", 1)
+        # self.cam.save_image(b"image.jpg", 1)
         del frame
         self.frameout = frameout
         
@@ -565,7 +543,8 @@ if __name__ == "__main__":
 
     # ic()
     device = data_acqusition("IC", 4)
-    device.figure_of_merit()
+    for i in range(1):
+        device.figure_of_merit()
     device.shut_down()
     # # device = data_acqusition("Andor", 1)
     # device.acquire()
